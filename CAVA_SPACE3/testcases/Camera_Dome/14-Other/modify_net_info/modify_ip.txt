@@ -1,0 +1,15 @@
+*** Settings ***
+Library           MyLib.BaseLib
+Library           SSHLibrary
+
+*** Variables ***
+${new_ip}         192.168.1.111_10.8.5.161_10.65.70.51    # ip
+${new_mask}       255.255.255.0_255.255.255.0_255.255.255.0    # 掩码
+${new_gateway}    192.168.1.1    # 网关
+${new_dns}        211.140.188.188_211.140.13.188    # dns
+
+*** Test Cases ***
+修改IP
+    ${reboot_flag}    Modify Local Pc Adapter    IP=${new_ip}    Mask=${new_mask}    Gateway=${new_gateway}    DNS=${new_dns}
+    Run Keyword If    ${reboot_flag} == True    Log    PC需要重启才生效!!    WARN    ELSE    Log
+    ...    修改完毕!

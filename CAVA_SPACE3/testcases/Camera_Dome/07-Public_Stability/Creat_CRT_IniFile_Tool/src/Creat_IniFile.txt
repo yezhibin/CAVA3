@@ -1,0 +1,26 @@
+*** Settings ***
+Library           MyLib.BaseLib
+Library           Collections
+Library           String
+Library           OperatingSystem
+
+*** Variables ***
+${sourceFilePath}    D:\\CAVA3\\CAVA_SPACE3\\testcases\\Camera_Dome\\07-Public_Stability\\Creat_CRT_IniFile_Tool\\FormatFile\\10.8.5.72.ini
+${objectDir}      D:\\CAVA3\CAVA_SPACE3\\testcases\\Camera_Dome\\07-Public_Stability\\Creat_CRT_IniFile_Tool\\output
+${sourceIP}       10.8.5.72
+${objectIP}       10.8.3.X
+${First}          131
+${Last}           150
+${channelNum}     0
+
+*** Test Cases ***
+Creat test
+    #V1.0.1    #2016年12月28日22:59:50
+    #${objectIP}    set variable    10.8.2.177
+    ${Last}    Evaluate    ${Last} + 1
+    : FOR    ${i}    IN RANGE    ${First}    ${Last}
+    \    ${newIP}    Evaluate    "${objectIP}".replace("X","${i}")
+    \    Create Directory    ${objectDir}
+    \    ${ini_Status}    creat_New_Ini_File    ${sourceFilePath}    ${objectDir}    ${sourceIP}    ${newIP}
+    \    ...    ${channelNum}
+    \    Log    ${ini_Status}

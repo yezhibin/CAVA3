@@ -1,0 +1,155 @@
+*** Settings ***
+Suite Setup
+Suite Teardown
+Library           OperatingSystem
+Library           String
+Library           ../MyLib/MyCustomLib.py
+Library           Collections
+
+*** Variables ***
+${task_count}     0
+${return_list}    ${EMPTY}
+${tool_bat_path}    D:/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/run.bat    # 工具批处理绝对路径，必须以“/”代替“\”
+${log_tag_dir}    D:\\CAVA3\\CAVA_SPACE3\\outputs\\Log
+${tool_name}      Creat_CRT_IniFile_Tool
+
+*** Test Cases ***
+定时调用关键字
+    ${log_path}    Set Variable    D:/run_log.txt
+    ${return_list}    Create List    #如要接收返回值，此行不能省略
+    Run Keyword And Ignore Error    Remove File    D:\\标志\\flag.txt
+    Run Keyword And Ignore Error    Remove File    ${log_path}
+    #脚本里为了成功调用Execute Sleep    需要先新建文件，保证txt文件存在
+    Append To File    D:\\标志\\flag.txt    66
+    ${time}    Get Time    hour min sec    NOW + 10s
+    ${task_time}    Set Variable    ${time[0]}:${time[1]}:${time[2]}
+    #Mail Send    smtp.sina.cn    yzbemail@sina.cn    123456    yzbemail@sina.cn    905406533@qq.com;164258926@qq.com
+    @{list_args}    Create List    run_fun    Hello Word.    ${task_time}
+    #定时任务初始化，必须先调用该关键字
+    Schedule Task Init
+    #通过调用定时关键字，开启定时线程，定时执行write_data_to_txt
+    Execute Keyword By Schedule    ${task_time}    seconds    2    @{list_args}
+    #进入循环，否则定时线程在脚本运行结束后也会终止
+    Execute Sleep    5    D:\\标志\\flag.txt    #如果要正常结束脚本运行，在对应的txt中写入exit即可
+    Log    task任务执行次数：${task_count}
+    #打印被定时执行的关键字返回值列表
+    Log    返回值是: ${return_list}
+
+定时发送邮件
+    #2016年12月27日16:34:25
+    ${log_path}    Set Variable    D:/run_log.txt
+    ${return_list}    Create List    #如要接收返回值，此行不能省略
+    Run Keyword And Ignore Error    Remove File    D:\\标志\\flag.txt
+    Run Keyword And Ignore Error    Remove File    ${log_path}
+    #脚本里为了成功调用Execute Sleep    需要先新建文件，保证txt文件存在
+    Append To File    D:\\标志\\flag.txt    hello
+    ${task_time}    Set Variable    02:21:50
+    #将要定时调用的关键字名称和实参写到一个列表中
+    #${list_args}    Create List    Log    hello RF    #调用系统关键字,关键字如有返回值，会在控制台打印，切勿将返回值直接赋值给变量。建议对系统关键字再做封装，然后返回存储到变量中。
+    #${list_args}    Create List    Netsdk Reboot Device    #调用系统关键字
+    @{list_args}    Create List    Mail Send    smtp.sina.cn    yzbemail@sina.cn    123456    yzbemail@sina.cn
+    ...    905406533@qq.com;164258926@qq.com
+    #定时任务初始化，必须先调用该关键字    ${tool_name}任务结束通知    <br /><font color="#EEB422">执行完毕，</font><font color="#008B00">报告请见附件!</font><br />
+    Schedule Task Init
+    #通过调用定时关键字，开启定时线程，定时执行write_data_to_txt
+    Execute Keyword By Schedule    ${task_time}    hours    24    @{list_args}    #间隔周期大于被定时调用关键字一次执行的时长
+    #进入循环，否则定时线程在脚本运行结束后也会终止
+    Execute Sleep    5    D:\\标志\\flag.txt    #如果要正常结束脚本运行，在对应的txt中写入exit即可
+    Log    task任务执行次数：${task_count}
+    #打印被定时执行的关键字返回值列表
+    Log    ${return_list}
+
+定时执行工具
+    #2016年12月27日16:34:25
+    ${log_path}    Set Variable    D:/run_log.txt
+    ${return_list}    Create List    #如要接收返回值，此行不能省略
+    Run Keyword And Ignore Error    Remove File    D:\\标志\\flag.txt
+    Run Keyword And Ignore Error    Remove File    ${log_path}
+    #脚本里为了成功调用Execute Sleep    需要先新建文件，保证txt文件存在
+    Append To File    D:\\标志\\flag.txt    hello
+    ${time}    Get Time    hour min sec    NOW + 10s
+    ${task_time}    Set Variable    ${time[0]}:${time[1]}:${time[2]}
+    #${task_time}    Set Variable    02:14:10
+    #将要定时调用的关键字名称和实参写到一个列表中
+    #${list_args}    Create List    Log    hello RF    #调用系统关键字,关键字如有返回值，会在控制台打印，切勿将返回值直接赋值给变量。建议对系统关键字再做封装，然后返回存储到变量中。
+    #${list_args}    Create List    Netsdk Reboot Device    #调用系统关键字
+    @{list_args}    Create List    run_bat    bat_path=${tool_bat_path}    txt_path=${log_path}    task_id=${task_time}
+    #定时任务初始化，必须先调用该关键字
+    Schedule Task Init
+    #通过调用定时关键字，开启定时线程，定时执行write_data_to_txt
+    Execute Keyword By Schedule    ${task_time}    hours    24    @{list_args}
+    #进入循环，否则定时线程在脚本运行结束后也会终止
+    Execute Sleep    5    D:\\标志\\flag.txt    #如果要正常结束脚本运行，在对应的txt中写入exit即可
+    Log    task任务执行次数：${task_count}
+    #打印被定时执行的关键字返回值列表
+    Log    ${return_list}
+
+*** Keywords ***
+run_bat
+    [Arguments]    ${bat_path}    ${txt_path}    ${task_id}
+    [Documentation]    运行某个bat批处理（该关键字适用于定时调用）
+    ...    bat_path：批处理绝对路径
+    ...    txt_path：批处理执行过程记录日志的绝对路径
+    ...    task_id：该批处理作为定时任务，首次的执行时间作为id
+    #2-6行为定时执行的主体内容。可修改和增加
+    ${now_pc_time}    Get Time
+    Log    PC此刻时间：${now_pc_time}
+    ${log}    Run    ${bat_path}
+    Append To File    D:\\标志\\run.txt    ${log}
+    #获取报告路径
+    ${log_path_temp}    Fetch From Right    ${log}    Log: \ \ \ \ D
+    ${log_path}    Get Lines Containing String    ${log_path_temp}    _log.html
+    ${report_path_temp}    Fetch From Right    ${log}    Report: \ D
+    ${report_path}    Get Lines Containing String    ${report_path_temp}    _report.html
+    ${xls_report_path_temp}    Fetch From Right    ${log}    Excel Report Path: D
+    ${xls_report_path}    Get Lines Containing String    ${xls_report_path_temp}    _Report.xls
+    Log    D${xls_report_path}    #Excel Report Path: D:\HITA_HOME\outputs\Log\SD卡测试工具_20170124161808\SD卡测试_SDK_20170124-161844_Test_Report.xls    Excel Report Path: D
+    ${file_list}    Create List    D${xls_report_path}    D${log_path}    D${report_path}
+    #配置邮件参数并发送
+    ${mail_tail}    Set Variable    ------------------------注意------------------------<br />本邮件为【${tool_name}】自动发送<br />有疑问请联系yezhibin<br />-----------------------------------------------------
+    ${recievers}    Set Variable    905406533@qq.com;164258926@qq.com    #@{send_suc_status}    Mail Send    smtp.sina.cn    yzbemail@sina.cn
+    ...    # 123456    yzbemail@sina.cn    905406533@qq.com;164258926@qq.com    # ${tool_name}任务结束通知    <br /><font color="#EEB422">执行完毕，</font><font color="#008B00">报告请见附件!</font><br />${mail_tail}    ${file_list}
+    ${send_suc_status}    Mail Send    smtp.sina.cn    yzbemail@sina.cn    123456    yzbemail@sina.cn    ${recievers}
+    ...    ${tool_name}任务结束通知    <br /><font color="#EEB422">执行完毕，</font><font color="#008B00">报告请见附件!</font><br />${mail_tail}    ${file_list}
+    Log    ${send_suc_status[0]}
+    Log    ${send_suc_status[1]}
+    ${cmd_log}    Set Variable    ${log}
+    Log    ${cmd_log}
+    Append To File    ${txt_path}    ${task_count}：task ${now_pc_time}\r\n${cmd_log}\r\n
+    #将返回值加入到列表
+    ${return_list}    Create List
+    Append To List    ${return_list}    ${now_pc_time}    ${send_suc_status[0]}    ${send_suc_status[1]}
+    #7行到最后，相对固定，除执行次数外，其余内容不建议做更改
+    ${task_count}    Evaluate    ${task_count} + 1
+    #必须设置为全局变量
+    Set Global Variable    ${task_count}
+    Set Global Variable    ${return_list}
+    #若执行次数无限制，后面两行可注销
+    Run Keyword If    ${task_count} == 1    Append To File    D:\\标志\\flag.txt    exit
+    Run Keyword If    ${task_count} == 1    Remove Job    ${task_id}
+
+run_fun
+    [Arguments]    ${info}    ${task_id}
+    [Documentation]    运行某个bat批处理（该关键字适用于定时调用）
+    ...    bat_path：批处理绝对路径
+    ...    txt_path：批处理执行过程记录日志的绝对路径
+    ...    task_id：该批处理作为定时任务，首次的执行时间作为id
+    Append To File    D:\\标志\\out.txt    ${info}_${task_id}
+    #2-6行为定时执行的主体内容。可修改和增加
+    ${now_pc_time}    Get Time
+    Log    PC此刻时间：${now_pc_time}
+    Log    ${info}
+    #将返回值加入到列表
+    ${return_list}    Create List
+    Append To List    ${return_list}    ${task_id}
+    Append To List    ${return_list}    ${info}
+    #7行到最后，相对固定，除执行次数外，其余内容不建议做更改
+    ${task_count}    Evaluate    ${task_count} + 1
+    #必须设置为全局变量
+    Set Global Variable    ${task_count}
+    Set Global Variable    ${return_list}
+    #若执行次数无限制，后面两行可注销
+    Run Keyword If    ${task_count} == 10    Append To File    D:\\标志\\flag.txt    exit
+    Run Keyword If    ${task_count} == 10    Remove Job    ${task_id}
+    Append To File    D:\\标志\\out.txt    ${task_id}
+    Append To File    D:\\标志\\out.txt    ${info}

@@ -1,0 +1,28 @@
+*** Settings ***
+Suite Setup       Login
+Suite Teardown    Close Browser
+Library           Selenium2Library
+Library           BaseLib
+Resource          ../public/variables.txt
+Resource          ../public/keywords.txt
+
+*** Test Cases ***
+reboot
+    Wait Until Page Contains Element    ${high_config_obj}
+    Click Element    ${high_config_obj}
+    Wait Until Page Contains Element    ${device_manage_obj}
+    Click Element    ${device_manage_obj}
+    Wait Until Page Contains Element    ${reboot_tab_obj}
+    Click Element    ${reboot_tab_obj}
+    Wait Until Page Contains Element    ${reboot_btn_obj}
+    Click Element    ${reboot_btn_obj}
+    Wait Until Page Contains Element    ${reboot_ok_btn_obj}
+    ${start_time}    Get Pc Nowtime
+    Click Element    ${reboot_ok_btn_obj}
+    Sleep    3
+    #Wait Until Page Contains    100%    60
+    Wait Until Page Does Not Contain    正在重启...    60
+    ${end_time}    Get Pc Nowtime
+    ${reboot_time}    Get Time Period    ${start_time}    ${end_time}
+    KeyLog    本轮重启耗时是(s)：${reboot_time}
+    #Sleep    10

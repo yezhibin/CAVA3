@@ -1,0 +1,16 @@
+*** Settings ***
+Library           sdk.HCNetSDK.HCNetSDK
+Library           Collections
+
+*** Test Cases ***
+test1
+    Net Sdk Init
+    ${login_ret_list}    Net Sdk Login V30    192.168.1.160    8001    admin    admin12345
+    #${login_ret_list}    Net Sdk Test
+    Log    ${login_ret_list}
+    Sleep    5
+    # 如果登录成功再注销
+    ${logout_ret_list}    Run Keyword If    ${login_ret_list[0]} > -1    Net Sdk Logout
+    # 执行过注销再打印注销信息
+    Run Keyword If    ${logout_ret_list} != None    Log    ${logout_ret_list}
+    Net Sdk Cleanup
