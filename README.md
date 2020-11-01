@@ -1,6 +1,9 @@
 # CAVA3
 # CAVA3测试开发框架部署工程
 
+# windows安装方法
+# 【备注】linux cava二进制程序需要根据不同发行版本编译，故不在此陈列，有需要单独联系
+
 # 1.将以下内容复制到.sh文件中，账号密码需要修改成自己的，并重命名为cava_install_ext.sh
 #!/bin/sh
 mode=$1
