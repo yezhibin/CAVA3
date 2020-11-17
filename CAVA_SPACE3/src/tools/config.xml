@@ -13,7 +13,7 @@
 	<client>
 		<username>cava</username>
 		<password>12345678</password>
-		<login_type>-1</login_type>
+		<login_type>1</login_type>
 		<!--CAVA_SPACE3的绝对路径，默认为D:\CAVA3\CAVA_SPACE3-->
 		<cava_abs_pth>D:\CAVA3\CAVA_SPACE3</cava_abs_pth>
 	</client>

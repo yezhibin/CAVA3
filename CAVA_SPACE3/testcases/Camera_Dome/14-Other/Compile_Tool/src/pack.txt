@@ -1,0 +1,20 @@
+*** Settings ***
+Library           SSHLibrary
+Library           MyLib.BaseLib
+
+*** Variables ***
+${workDir}        \    # 工作目录
+${taskName}       \    # 任务名称
+
+*** Test Cases ***
+compile
+    Set Library Search Order    SSHLibrary    Telnet
+    Open Connection    192.168.0.136    port=22    timeout=20
+    Set Client Configuration    timeout=120    prompt=$
+    Login    yezhibin    admin12345
+    ${now_pc_time}    Get Timestamp    %Y-%m-%d -%H-%M-%S    Now
+    Write    cd ${workDir} && cmake . && make
+    ${ret_str}    Read Until Prompt
+    Log    ${ret_str}
+    Close Connection
+    Keylog    ${taskName} ok.
