@@ -15,12 +15,13 @@ cmd="git clone https://${username}:${password}@${url} ./CAVA3"
 time=$(date "+%Y-%m-%d %H:%M:%S")
 echo "[${time}][info] start install cava3. url is: ${url}"
 
+${cmd}
+
 ln -s /usr/local/bin/CAVA3/CAVA_SPACE3/src/cava
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/robotframework-3.0.3-py3.7.egg/EGG-INFO/scripts/pybot
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/pip/pip3
 ln -s ./CAVA3/Python37/bin/python3.7 python3
 
-${cmd}
 chmod 755 -R CAVA3
 cd ./CAVA3
 git fetch "origin"
