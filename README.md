@@ -36,6 +36,11 @@ ln -s ./CAVA3/Python37/lib/python3.7/site-packages/robotframework-3.0.3-py3.7.eg
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/pip/pip3
 ln -s ./CAVA3/Python37/bin/python3.7 python3
 
+chmod 755 cava
+chmod 755 pybot
+chmod 755 pip3
+chmod 755 python3
+
 chmod 755 -R CAVA3
 cd ./CAVA3
 git fetch "origin"
