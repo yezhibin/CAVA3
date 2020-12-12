@@ -36,4 +36,4 @@ time=$(date "+%Y-%m-%d %H:%M:%S")
 echo "[${time}][info] ${mode_branch} install cava3 success."
 
 
-# 2.将cava_install_linux.sh放到linux /urs/local/bin下，添加执行权限，并执行sh cava_install_linux.sh，执行无报错即表示部署成功
+# 2.将cava_install_linux.sh放到linux /usr/local/bin下，添加执行权限，并执行sh cava_install_linux.sh，执行无报错即表示部署成功
