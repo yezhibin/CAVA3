@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 3.0.3 (Python 3.7.3 on linux)" generated="20201207 15:32:25.505">
+<suite id="s1" name="Src" source="/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/src">
+<suite id="s1-s1" name="Creat IniFile" source="/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/src/Creat_IniFile.txt">
+<test id="s1-s1-t1" name="Creat test">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>${Last} + 1</arg>
+</arguments>
+<assign>
+<var>${Last}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.624" level="INFO">${Last} = 21</msg>
+<status status="PASS" starttime="20201207 15:32:25.623" endtime="20201207 15:32:25.624"></status>
+</kw>
+<kw name="${i} IN RANGE [ ${First} | ${Last} ]" type="for">
+<kw name="${i} = 6" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.630" level="INFO">${newIP} = 10.45.25.6</msg>
+<status status="PASS" starttime="20201207 15:32:25.624" endtime="20201207 15:32:25.630"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.630" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.630" endtime="20201207 15:32:25.630"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.644" level="INFO">10.45.25.6-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.644" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.631" endtime="20201207 15:32:25.644"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.645" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.645" endtime="20201207 15:32:25.645"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.624" endtime="20201207 15:32:25.645"></status>
+</kw>
+<kw name="${i} = 7" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.646" level="INFO">${newIP} = 10.45.25.7</msg>
+<status status="PASS" starttime="20201207 15:32:25.645" endtime="20201207 15:32:25.646"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.646" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.646" endtime="20201207 15:32:25.646"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.652" level="INFO">10.45.25.7-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.652" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.647" endtime="20201207 15:32:25.652"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.653" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.652" endtime="20201207 15:32:25.653"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.645" endtime="20201207 15:32:25.653"></status>
+</kw>
+<kw name="${i} = 8" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.653" level="INFO">${newIP} = 10.45.25.8</msg>
+<status status="PASS" starttime="20201207 15:32:25.653" endtime="20201207 15:32:25.653"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.654" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.654" endtime="20201207 15:32:25.654"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.656" level="INFO">10.45.25.8-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.656" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.654" endtime="20201207 15:32:25.656"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.656" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.656" endtime="20201207 15:32:25.657"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.653" endtime="20201207 15:32:25.657"></status>
+</kw>
+<kw name="${i} = 9" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.657" level="INFO">${newIP} = 10.45.25.9</msg>
+<status status="PASS" starttime="20201207 15:32:25.657" endtime="20201207 15:32:25.658"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.658" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.658" endtime="20201207 15:32:25.658"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.664" level="INFO">10.45.25.9-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.664" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.658" endtime="20201207 15:32:25.664"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.665" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.665" endtime="20201207 15:32:25.665"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.657" endtime="20201207 15:32:25.665"></status>
+</kw>
+<kw name="${i} = 10" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.666" level="INFO">${newIP} = 10.45.25.10</msg>
+<status status="PASS" starttime="20201207 15:32:25.665" endtime="20201207 15:32:25.666"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.666" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.666" endtime="20201207 15:32:25.666"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.673" level="INFO">10.45.25.10-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.673" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.666" endtime="20201207 15:32:25.673"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.674" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.674" endtime="20201207 15:32:25.674"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.665" endtime="20201207 15:32:25.674"></status>
+</kw>
+<kw name="${i} = 11" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.675" level="INFO">${newIP} = 10.45.25.11</msg>
+<status status="PASS" starttime="20201207 15:32:25.674" endtime="20201207 15:32:25.675"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.675" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.675" endtime="20201207 15:32:25.675"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.678" level="INFO">10.45.25.11-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.678" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.676" endtime="20201207 15:32:25.678"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.678" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.678" endtime="20201207 15:32:25.678"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.674" endtime="20201207 15:32:25.678"></status>
+</kw>
+<kw name="${i} = 12" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.679" level="INFO">${newIP} = 10.45.25.12</msg>
+<status status="PASS" starttime="20201207 15:32:25.679" endtime="20201207 15:32:25.684"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.685" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.685" endtime="20201207 15:32:25.685"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.686" level="INFO">10.45.25.12-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.686" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.685" endtime="20201207 15:32:25.686"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.687" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.687" endtime="20201207 15:32:25.687"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.678" endtime="20201207 15:32:25.687"></status>
+</kw>
+<kw name="${i} = 13" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.688" level="INFO">${newIP} = 10.45.25.13</msg>
+<status status="PASS" starttime="20201207 15:32:25.687" endtime="20201207 15:32:25.688"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.695" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.688" endtime="20201207 15:32:25.695"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.697" level="INFO">10.45.25.13-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.697" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.695" endtime="20201207 15:32:25.697"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.697" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.697" endtime="20201207 15:32:25.697"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.687" endtime="20201207 15:32:25.697"></status>
+</kw>
+<kw name="${i} = 14" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.698" level="INFO">${newIP} = 10.45.25.14</msg>
+<status status="PASS" starttime="20201207 15:32:25.698" endtime="20201207 15:32:25.698"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.699" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.698" endtime="20201207 15:32:25.699"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.701" level="INFO">10.45.25.14-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.701" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.699" endtime="20201207 15:32:25.701"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.701" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.701" endtime="20201207 15:32:25.701"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.697" endtime="20201207 15:32:25.701"></status>
+</kw>
+<kw name="${i} = 15" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.708" level="INFO">${newIP} = 10.45.25.15</msg>
+<status status="PASS" starttime="20201207 15:32:25.702" endtime="20201207 15:32:25.708"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.709" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.709" endtime="20201207 15:32:25.709"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.711" level="INFO">10.45.25.15-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.711" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.709" endtime="20201207 15:32:25.711"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.711" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.711" endtime="20201207 15:32:25.712"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.701" endtime="20201207 15:32:25.712"></status>
+</kw>
+<kw name="${i} = 16" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.712" level="INFO">${newIP} = 10.45.25.16</msg>
+<status status="PASS" starttime="20201207 15:32:25.712" endtime="20201207 15:32:25.712"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.713" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.712" endtime="20201207 15:32:25.713"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.722" level="INFO">10.45.25.16-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.722" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.717" endtime="20201207 15:32:25.722"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.722" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.722" endtime="20201207 15:32:25.722"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.712" endtime="20201207 15:32:25.723"></status>
+</kw>
+<kw name="${i} = 17" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.723" level="INFO">${newIP} = 10.45.25.17</msg>
+<status status="PASS" starttime="20201207 15:32:25.723" endtime="20201207 15:32:25.723"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.724" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.723" endtime="20201207 15:32:25.724"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.726" level="INFO">10.45.25.17-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.726" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.724" endtime="20201207 15:32:25.726"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.726" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.726" endtime="20201207 15:32:25.726"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.723" endtime="20201207 15:32:25.726"></status>
+</kw>
+<kw name="${i} = 18" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.727" level="INFO">${newIP} = 10.45.25.18</msg>
+<status status="PASS" starttime="20201207 15:32:25.727" endtime="20201207 15:32:25.727"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.727" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.727" endtime="20201207 15:32:25.728"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.736" level="INFO">10.45.25.18-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.736" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.728" endtime="20201207 15:32:25.736"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.737" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.736" endtime="20201207 15:32:25.737"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.726" endtime="20201207 15:32:25.737"></status>
+</kw>
+<kw name="${i} = 19" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.737" level="INFO">${newIP} = 10.45.25.19</msg>
+<status status="PASS" starttime="20201207 15:32:25.737" endtime="20201207 15:32:25.738"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.738" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.738" endtime="20201207 15:32:25.738"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.740" level="INFO">10.45.25.19-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.740" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.738" endtime="20201207 15:32:25.740"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.740" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.740" endtime="20201207 15:32:25.741"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.737" endtime="20201207 15:32:25.741"></status>
+</kw>
+<kw name="${i} = 20" type="foritem">
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"${objectIP}".replace("X","${i}")</arg>
+</arguments>
+<assign>
+<var>${newIP}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.741" level="INFO">${newIP} = 10.45.25.20</msg>
+<status status="PASS" starttime="20201207 15:32:25.741" endtime="20201207 15:32:25.741"></status>
+</kw>
+<kw name="Create Directory" library="OperatingSystem">
+<doc>Creates the specified directory.</doc>
+<arguments>
+<arg>${objectDir}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.746" level="INFO" html="yes">Directory '&lt;a href="file:///usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output"&gt;/usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/07-Public_Stability/Creat_CRT_IniFile_Tool/output&lt;/a&gt;' already exists.</msg>
+<status status="PASS" starttime="20201207 15:32:25.741" endtime="20201207 15:32:25.746"></status>
+</kw>
+<kw name="Creat New Ini File" library="MyCustomLib">
+<doc>    功能：通过.ini模板文件生成新的.ini文件，可批量</doc>
+<arguments>
+<arg>${sourceFilePath}</arg>
+<arg>${objectDir}</arg>
+<arg>${sourceIP}</arg>
+<arg>${newIP}</arg>
+<arg>${channelNum}</arg>
+</arguments>
+<assign>
+<var>${ini_Status}</var>
+</assign>
+<msg timestamp="20201207 15:32:25.748" level="INFO">10.45.25.20-1.ini 生成完毕！</msg>
+<msg timestamp="20201207 15:32:25.748" level="INFO">${ini_Status} = True</msg>
+<status status="PASS" starttime="20201207 15:32:25.746" endtime="20201207 15:32:25.748"></status>
+</kw>
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${ini_Status}</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.753" level="INFO">True</msg>
+<status status="PASS" starttime="20201207 15:32:25.753" endtime="20201207 15:32:25.754"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.741" endtime="20201207 15:32:25.754"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.624" endtime="20201207 15:32:25.754"></status>
+</kw>
+<kw name="Keylog" library="BuiltIn">
+<doc>In the Robot Excel Report, log the given message used for the key info.</doc>
+<arguments>
+<arg>hello world</arg>
+</arguments>
+<msg timestamp="20201207 15:32:25.754" level="INFO">hello world</msg>
+<status status="PASS" starttime="20201207 15:32:25.754" endtime="20201207 15:32:25.754"></status>
+</kw>
+<status status="PASS" starttime="20201207 15:32:25.623" endtime="20201207 15:32:25.754" critical="yes"></status>
+</test>
+<status status="PASS" starttime="20201207 15:32:25.565" endtime="20201207 15:32:25.756"></status>
+</suite>
+<status status="PASS" starttime="20201207 15:32:25.506" endtime="20201207 15:32:25.757"></status>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0">Critical Tests</stat>
+<stat pass="1" fail="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" id="s1" name="Src">Src</stat>
+<stat pass="1" fail="0" id="s1-s1" name="Creat IniFile">Src.Creat IniFile</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

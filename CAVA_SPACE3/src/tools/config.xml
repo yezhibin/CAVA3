@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<server>
+		<!--填服务器ip或域名-->
+		<ip>qinfengjishu.imwork.net</ip>
+		<!--填服务器web端口80-->
+		<port>80</port>
+		<!--登录超时时间，可以是小数，单位为秒-->
+		<waittime>3</waittime>
+		<!--登录最大尝试次数-->
+		<trytimes>3</trytimes>
+	</server>
+	<client>
+		<username>cava</username>
+		<password>12345678</password>
+		<login_type>1</login_type>
+		<!--CAVA_SPACE3的绝对路径，默认为D:\\CAVA3\\CAVA_SPACE3-->
+		<cava_abs_pth>/usr/local/bin/CAVA3/CAVA_SPACE3</cava_abs_pth>
+	</client>
+	<mail_cfg>
+		<!--邮件通知使能开关，0-关闭，1-开启-->
+		<enable>0</enable>
+		<!--发件服务器-->
+		<mail_server>smtp.sina.cn</mail_server>
+		<!--邮箱用户名，格式举例: xx@qq.com-->
+		<username>yzbemail@sina.cn</username>
+		<!--邮箱密码-->
+		<password>xxxxxx</password>
+		<!--发件人名称，同邮箱用户名-->
+		<sender_name>yzbemail@sina.cn</sender_name>
+		<!--邮件接收人，用;隔开-->
+		<receivers>905406533@qq.com</receivers>
+	</mail_cfg>
+</config>

@@ -1,0 +1,16 @@
+==============================================================================
+Src                                                                           
+==============================================================================
+Src.Creat IniFile                                                             
+==============================================================================
+Creat test                                                            | PASS |
+------------------------------------------------------------------------------
+Src.Creat IniFile                                                     | PASS |
+1 critical test, 1 passed, 0 failed
+1 test total, 1 passed, 0 failed
+==============================================================================
+Src                                                                   | PASS |
+1 critical test, 1 passed, 0 failed
+1 test total, 1 passed, 0 failed
+==============================================================================
+Output:  /usr/local/bin/CAVA3/CAVA_SPACE3/outputs/Log/Creat_CRT_IniFile_Tool_src_20201206213240/sheet1_Creat_CRT_IniFile_Tool_src-objectIP-10.45.25.X-r-4-round-1-output.xml
