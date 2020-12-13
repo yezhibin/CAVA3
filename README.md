@@ -21,8 +21,8 @@ export PATH=/usr/local/lib:/usr/local/bin:$PATH
 # 1.将以下内容复制到.sh文件中，账号密码需要修改成自己的，并重命名为cava_install_linux.sh
 #!/bin/sh
 mode_branch=centos7_x86_64
-username="your username"
-password="your password"
+username="yezhibin"
+password="199309024710yzb"
 url="github.com/yezhibin/CAVA3.git"
 cmd="git clone https://${username}:${password}@${url} ./CAVA3"
 
@@ -36,12 +36,6 @@ ln -s ./CAVA3/Python37/lib/python3.7/site-packages/robotframework-3.0.3-py3.7.eg
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/pip/pip3
 ln -s ./CAVA3/Python37/bin/python3.7 python3
 
-chmod 755 cava
-chmod 755 pybot
-chmod 755 pip3
-chmod 755 python3
-
-chmod 755 -R CAVA3
 cd ./CAVA3
 git fetch "origin"
 git branch -va
@@ -49,6 +43,9 @@ git stash
 git checkout -b ${mode_branch} remotes/origin/${mode_branch}
 git branch   
 git pull
+
+cd ..
+chmod 755 -R CAVA3
 
 time=$(date "+%Y-%m-%d %H:%M:%S")
 echo "[${time}][info] download files success."
