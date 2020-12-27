@@ -1,0 +1,2 @@
+rd /s /q D:\CAVA3\CAVA_SPACE3\testcases\Camera_Dome\07-Public_Stability\Creat_CRT_IniFile_Tool\output
+md       D:\CAVA3\CAVA_SPACE3\testcases\Camera_Dome\07-Public_Stability\Creat_CRT_IniFile_Tool\output

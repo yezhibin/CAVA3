@@ -1,0 +1,12 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Test Cases ***
+test
+    Open Browser    www.baidu.com    ie
+    Wait Until Page Contains Element    id=kw
+    Input Text    id=kw    海康威视
+    Wait Until Page Contains Element    id=su
+    Click Element    id=su
+    Sleep    5
+    #Close Browser

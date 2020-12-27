@@ -1,0 +1,12 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../public/variables.txt
+
+*** Keywords ***
+Login
+    Open Browser    ${router_ip}    ie
+    Wait Until Page Contains Element    ${pwd_obj}
+    Input Text    ${pwd_obj}    ${password}
+    Wait Until Page Contains Element    ${login_btn_obj}
+    Click Element    ${login_btn_obj}
+    Log    web登录成功

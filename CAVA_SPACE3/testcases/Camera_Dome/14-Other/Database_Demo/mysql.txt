@@ -1,0 +1,9 @@
+*** Settings ***
+Library           DatabaseLibrary
+
+*** Test Cases ***
+select_test
+    Connect To Database    pymysql    db_house_sys    root    123456    192.168.0.132    3306
+    @{result}    Query    SELECT * from t_user where u_name=\"wechat\"
+    Log many    @{result}
+    Disconnect From Database

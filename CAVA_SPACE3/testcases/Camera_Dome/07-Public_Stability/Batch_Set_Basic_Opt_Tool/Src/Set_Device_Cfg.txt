@@ -1,0 +1,296 @@
+*** Settings ***
+Documentation     \# 2016年11月10日19:49:17
+Suite Setup       Login Device    #登录设备
+Suite Teardown    Netsdk Logout
+Library           sdk.HCNetSDK
+Library           SSHLibrary
+Resource          hita.txt
+Resource          ../variables/variables.txt
+Library           BaseLib
+
+*** Variables ***
+
+*** Test Cases ***
+1-1 校时
+    Run Keyword If    '${set_time_opt}' == 'Y'    Correct Dev Time    ELSE    Keylog    未选择该项，设备不校时!!
+
+1-2 重启
+    Run Keyword If    '${reboot_dev_opt}' == 'Y'    Netsdk Reboot Device    ELSE    Keylog    未选择该项，设备不重启!!
+
+1-3 简单恢复参数
+    Run Keyword If    '${restore_cfg_opt}' == 'Y'    Netsdk Restore Default Cfg    True    ELSE    Keylog    未选择该项，不对设备进行简单恢复!!
+
+1-4 修改管理员密码
+    Run Keyword If    '${set_admin_new_psw}' == 'Y'    Netsdk Modify User    admin    admin    ${new_psw}    ELSE
+    ...    Keylog    未选择该项，不对设备进行重置admin密码!!
+    Run Keyword If    '${set_admin_new_psw}' == 'Y'    KeyLog    设置新密码成功：${new_psw}
+
+1-5 获取设备属性
+    [Documentation]    \#CN、EN、CNNEU、ENNEU
+    Run Keyword If    '${get_attr_opt}' == 'Y'    Get Device Attribute    ELSE    Keylog    未选择该项，不对设备属性参数进行获取!!
+
+1-6 NAS挂载
+    [Documentation]    \#磁盘号1挂载NFS盘，会清除原先挂载的所有盘
+    Run Keyword If    '${set_nas_opt}' == 'Y'    Set Nas Pans    ELSE    Keylog    未选择该项，不挂载NAS!!
+
+1-7 NAS盘格式化
+    Run Keyword If    '${format_opt}' == 'Y'    Format NAS Pan    ELSE    Keylog    未选择该项，不格式NAS盘!!
+
+1-8 使能SSH
+    [Tags]    yezhibin
+    #获取状态
+    ${safe_info_before_dict}    Netsdk Get Dev Security Cfg    SSHServer
+    Run Keyword If    '${safe_info_before_dict["SSHServer"]}' == 'True'    Keylog    此前，SSH服务已开启，无需再设置!
+    #SSH没开，用户选择开启的时候，脚本采取设置开启
+    Run Keyword If    '${safe_info_before_dict["SSHServer"]}' == 'False' and '${ssh_opt}' == 'Y'    Set Enable SSH    ELSE IF    '${ssh_opt}' == 'N'    Keylog    未选择该项，不会确保SSH服务为开启!!
+
+1-9 获取机芯型号
+    [Tags]    yezhibin
+    Run Keyword If    '${get_camera_opt}' == 'Y'    Get Camera Type By SSH    ELSE    Keylog    未选择该项，不获取机芯型号!!
+
+2-1 修改IP地址、网关
+    Run Keyword If    '${modify_ip_opt}' == 'Y'    Modify Ipv4 And Gateway    ${new_IP}    ${gateway}    ELSE    Keylog
+    ...    未选择该项，不修改ip及网关!!
+
+2-2 link_up_down测试
+    [Tags]    yezhibin
+    Run Keyword If    '${link_check_opt}' == 'Y'    Check Dmesg Link Up Down    ELSE    Keylog    未选择该项，不测试link_up_down!!
+
+2-3 预置点抓图
+    [Tags]    yezhibin
+    #${point_capture_opt}    Set Variable    Y
+    Run Keyword If    '${point_capture_opt}' == 'Y'    Cruise Point Capture    ELSE    Keylog    未选择该项，不进行预置点抓图!!
+
+*** Keywords ***
+Login Device
+    [Documentation]    \#修改admin用户密码为test_1234
+    Log    ${IP} 测试开始
+    ${login_flag}    Run Keyword And Return Status    Wait Until Keyword Succeeds    20 sec    6 sec    Netsdk Login    ${IP}
+    ...    ${Port}    ${user}    ${password}
+    Run Keyword If    '${login_flag}'=='False'    Fail    ${IP} 连接异常，无法连接到设备
+    Netsdk Set Recv Timeout    10000
+
+Correct Dev Time
+    [Documentation]    \#设备校时，默认与PC时间同步
+    #获取校时前时间
+    ${get_Device_Time}    Netsdk Get Time Cfg
+    Log    校时前设备时间
+    #校时
+    Log    校时开始
+    Netsdk Set Time Cfg    #2016-01-01 01:01:01
+    Log    校时结束
+    #获取校时后时间
+    ${get_Device_Time}    Netsdk Get Time Cfg
+    Log    校时后设备时间
+    Log    ${get_Device_Time}
+    Log    校时成功
+
+Judge Language Status Of Device
+    #获取设备升级参数能力XML描述
+    ${update_cfg_xml}    Netsdk Get Device Updateflag Ability
+    ${language_status}    Get Element Text    ${update_cfg_xml}    Language
+    Run Keyword If    '${language_status}' == '001'    Log    ${IP} 是英文设备!    ELSE IF    '${language_status}' == '002'    Log
+    ...    ${IP} 是中文设备!
+    [Return]    ${language_status}
+
+Get Device Attribute
+    [Documentation]    \#获取设备属性
+    #通过能力集语言节点值判断设备中英文    001--英文设备    002--中文设备
+    ${language_flag}    Judge Language Status Of Device
+    #通过序列号长度判断设备是否是标配，中性设备序列号长度21，标配因为有型号会远大于
+    ${device_info_dict}    Netsdk Get Device Info Cfg    SerialNumber
+    ${device_serialNum}    Set Variable    ${device_info_dict['SerialNumber']}
+    #返回True，代表是标配设备
+    ${STD_Status}    Check Stringlen More Than    ${device_serialNum}    ${22}
+    Run Keyword If    '${STD_Status}' == 'True'    Log    ${IP} 是标配设备!    ELSE IF    '${STD_Status}' == 'False'    Log
+    ...    ${IP} 是中性设备!
+    Run Keyword If    '${language_flag}'=='001' and '${STD_Status}' == 'True'    Keylog    EN    ELSE IF    '${language_flag}'=='001' and '${STD_Status}' == 'False'    Keylog
+    ...    ENNEU    ELSE IF    '${language_flag}'=='002' and '${STD_Status}' == 'True'    Keylog    CN    ELSE IF
+    ...    '${language_flag}'=='002' and '${STD_Status}' == 'False'    Keylog    CNNEU
+
+Set Nas Pans
+    #清除原先的NAS盘
+    Delete Net Disk Config
+    #挂载
+    Run Keyword If    '${nas1_opt}' == 'Y'    Set Single Nas Pan    1    ${nas_ip1}    ${nas_dir1}    ${nas_type1}
+    ...    ${cifs_name1}    ${cifs_psw1}    ELSE    Keylog    磁盘1未挂载，空!!
+    Run Keyword If    '${nas2_opt}' == 'Y'    Set Single Nas Pan    2    ${nas_ip2}    ${nas_dir2}    ${nas_type2}
+    ...    ${cifs_name2}    ${cifs_psw2}    ELSE    Keylog    磁盘2未挂载，空!!
+    Sleep    3
+    #获取NAS盘状态
+    @{nas_status_list}    Get NAS Pan Status
+    Log    ${IP}挂载NAS结束!
+
+Delete Net Disk Config
+    [Documentation]    1、清除所有网络磁盘配置
+    : FOR    ${net_disk_no}    IN RANGE    1    9
+    \    Netsdk Set Net Disk Config    ${net_disk_no}    netdisk_type=NAS    nas_type=NFS    netdisk_IpV4=''    Directory=''
+    sleep    1s
+
+Format NAS Pan
+    #获取NAS盘状态
+    ${nas_status_list}    Run Keyword And Continue On Failure    Get NAS Pan Status
+    ${list_len}    Get Length    ${nas_status_list}
+    Run Keyword If    ${list_len} == 0    Fail    ${IP} 未检测到NAS盘，格式化测试失败!!
+    Log    ${IP} NAS盘格式化开始
+    ${fomat_flag}    Set Variable
+    Set Global Variable    ${fomat_flag}
+    ${Null_SDInfo_After_Format}    Set Variable    True
+    Set Global Variable    ${Null_SDInfo_After_Format}
+    ${format_start_Time}    Netsdk Get Time Cfg
+    Log    NAS盘格式化开始时间:${format_start_Time}
+    #格式化并返回标志位
+    ${fomat_flag}    Run Keyword And Continue On Failure    Run Keyword And Return Status    Netsdk Format Disk
+    Set Global Variable    ${fomat_flag}
+    Run Keyword If    '${fomat_flag}' == 'True'    Log    NAS盘格式化完成!    ELSE    Fail    ${IP} NAS盘格式化过程中失败,格式化测试失败!!
+    ${format_end_Time}    Netsdk Get Time Cfg
+    Log    NAS盘格式化结束时间：${format_end_Time}
+    #计算格式化耗时
+    ${format_period}    Get Time Period    ${format_start_Time}    ${format_end_Time}
+    Set Global Variable    ${format_period}
+    Log    格式化耗时是(s)：${format_period}
+    ${Null_SDInfo_After_Format}    Set Variable    True
+    #格式化后检测NAS盘，未检测到会继续检测，直至检测到或者检测满3次
+    : FOR    ${i}    IN RANGE    1    4
+    \    Continue For Loop If    '${Null_SDInfo_After_Format}' == 'False'
+    \    Sleep    5
+    \    ${dict_after}    Netsdk Get Hard Disk State
+    \    log    ${dict_after}
+    \    #判断NAS盘信息字典是否为空
+    \    ${Null_SDInfo_After_Format}    check_Dict_is_null    ${dict_after}
+    \    Run Keyword If    '${i}' == '3' and '${Null_SDInfo_After_Format}' == 'True'    Log    格式化后，连续检测了三次，仍未检测到NAS盘!!
+    set global variable    ${Null_SDInfo_After_Format}
+    Run Keyword If    '${Null_SDInfo_After_Format}' == 'True'    Fail    ${IP}格式化后，未检测到NAS盘!!    ELSE    Log    格式化后已检测到NAS盘!
+    #判断格式化后NAS盘状态
+    ${format_SD_State}    get SD State    ${dict_after}
+    Run Keyword If    '${format_SD_State}' == 'Active'    Log    格式化后NAS盘状态正常!    ELSE    Fail    ${IP}NAS盘格式化后异常，状态为：${format_SD_State}!!
+
+Get NAS Pan Status
+    [Documentation]    获取设备NAS盘状态，为所有磁盘的状态列表
+    #获取挂载状态
+    Log    NAS挂载状态
+    ${Null_NASInfo_status}    Set Variable    True
+    #检测NAS盘，未检测到会继续检测，直至检测到或者检测满3次
+    : FOR    ${i}    IN RANGE    1    5
+    \    Exit For Loop If    '${Null_NASInfo_status}' == 'False'
+    \    Sleep    5
+    \    ${dict_before}    Netsdk Get Hard Disk State
+    \    Log    ${dict_before}
+    \    #判断NAS盘信息字典是否为空
+    \    ${Null_NASInfo_status}    check_Dict_is_null    ${dict_before}
+    \    Run Keyword If    '${i}' == '4' and '${Null_NASInfo_status}' == 'True'    Log    连续检测了4次，仍未检测到NAS盘!!
+    Set Global Variable    ${Null_NASInfo_status}
+    ${disk_index_list}    Get Dictionary Keys    ${dict_before}
+    Run Keyword If    '${Null_NASInfo_status}' == 'True'    Fail    未检测到NAS盘，挂载失败!!    ELSE    Log    已检测到NAS盘，挂载成功!
+    ${NAS_state_list}    Create List
+    @{disk_index_list}    Set Variable    ${disk_index_list}
+    : FOR    ${index}    IN    @{disk_index_list}
+    \    ${i}    Evaluate    ${index} - 8
+    \    ${NAS_State}    Set Variable    ${dict_before[${index}]['State']}
+    \    Append To List    ${NAS_state_list}    ${NAS_State}
+    \    Run Keyword And Continue On Failure    Run Keyword If    '${NAS_State}' == 'Active'    Log    ${i}号NAS盘状态正常!    ELSE IF
+    \    ...    '${NAS_State}' == "Unformatted"    Log    ${i}号NAS盘未初始化!    ELSE IF    '${NAS_State}' == 'Abnormal'
+    \    ...    Fail    ${IP} ${i}号NAS盘状态异常!!    ELSE    Fail    ${IP} ${i}NAS盘状态为${NAS_State}，错误!!
+    [Return]    ${NAS_state_list}    # NAS盘状态列表
+
+Set Enable SSH
+    [Documentation]    使能SSH服务
+    #使能SSH服务
+    Netsdk Set Dev Security Cfg    SSHServer=True
+    Sleep    2
+    #查询状态
+    ${safe_info_dict}    Netsdk Get Dev Security Cfg    SSHServer
+    Run Keyword If    '${safe_info_dict["SSHServer"]}' == 'True'    Log    SSH服务开启成功!    ELSE    Keylog    尝试开启SSH服务，但失败!!
+
+Get Camera Type By SSH
+    [Documentation]    通过SSH获取机芯型号并返回，同时将型号存到对应的${IP}.txt中
+    #使能SSH服务
+    Netsdk Set Dev Security Cfg    SSHServer=True
+    Sleep    2
+    #通过SSH获取机芯型号信息（字符串）
+    Create Directory    ${tool_dir}\\camera_info
+    Set Library Search Order    SSHLibrary    Telnet
+    Open Connection    ${IP}
+    Set Client Configuration    prompt=#
+    Login    ${user}    ${password}
+    Write    outputClose
+    ${abandom_str}    Read Until Prompt
+    Write    getCamVer
+    ${camera_info_str}    Read Until Prompt
+    Close Connection
+    #将SSH获取的机芯信息转换为字典
+    ${camera_info_dic}    Convert Camera InfoStr To Dict    ${camera_info_str}
+    #从机芯信息字典中获取机芯型号
+    ${camera_type_return}    Set Variable    ${camera_info_dic['CAMERA']}
+    #如果TXT存在，就先删除再重建
+    Run Keyword And Ignore Error    Delete File    ${tool_dir}\\camera_info\\${IP}.txt
+    Append To File    ${tool_dir}\\camera_info\\${IP}.txt    ${camera_type_return}
+    ${dev_dic}    Netsdk Get Device Info Cfg V40    DevTypeName
+    KeyLog    ${dev_dic['DevTypeName']}
+    Pass Execution    ${camera_type_return}
+    [Return]    ${camera_type_return}    #返回ssh获取的机芯型号，如HIK DS2ZMD2307BAYER
+
+Modify Ipv4 And Gateway
+    [Arguments]    ${IPV4}    ${new_gateway}    # 新的IP、网关
+    [Documentation]    \#修改ipv4地址、网关，重启后生效
+    ${suc_flag}    Netsdk Set Net Cfg    IP=${IPV4}    Gateway=${new_gateway}
+    Sleep    3
+    Run Keyword If    '${suc_flag}' == '1'    Netsdk Reboot Device    ip=${IPV4}    ELSE    Fail    设置网络参数失败，设备不重启!!
+    Run Keyword If    '${suc_flag}' == '1'    Log    网络参数重置成功!
+
+Check Dmesg Link Up Down
+    Set Library Search Order    SSHLibrary    Telnet
+    Open Connection    ${IP}
+    Set Client Configuration    timeout=5    prompt=#
+    Login    ${user}    ${password}
+    ${now_pc_time}    Get Timestamp    %Y-%m-%d -%H-%M-%S    Now
+    ${now_pc_date}    Get Timestamp    %Y-%m-%d    Now
+    Write    ifconfig
+    ${ifconfig_str}    Read Until Prompt
+    Log    ${ifconfig_str}
+    Write    dmesg
+    ${dmesg_info_str}    Read    INFO    5
+    Close Connection
+    Log    ${dmesg_info_str}
+    ${flag}    Check Contain Substring    ${dmesg_info_str}    Link is Down
+    ${dev_dic}    Netsdk Get Device Info Cfg V40    DevTypeName
+    Run Keyword If    "${flag}" == "True"    KeyLog    ${dev_dic['DevTypeName']}
+    Run Keyword If    "${flag}" == "True"    Append To File    ${tool_dir}\\ssh_info\\${now_pc_date}\\${IP}_${now_pc_time}.txt    \#ifconfig\r\n${ifconfig_str}dmesg\r\n${dmesg_info_str}
+    Should Not Be True    "${flag}" == "True"    demsg包含Link Up Down信息!!
+
+Set Single Nas Pan
+    [Arguments]    ${net_disk_no}    ${nas_ip}    ${nas_dir}    ${nas_type}    ${cifs_name}=test    ${cifs_psw}=test
+    ...    # 磁盘号， NFS盘ip，挂载目录，nas盘类型，cif盘用户名，cifs盘密码
+    [Documentation]    \# 磁盘号， NFS盘ip，挂载目录，nas盘类型，cif盘用户名(cifs盘时传入)，cifs盘密码(cifs盘时传入)
+    Run Keyword If    '${nas_type}' == 'NFS'    Netsdk Set Net Disk Config    ${net_disk_no}    netdisk_type=NAS    nas_type=NFS    netdisk_IpV4=${nas_ip}
+    ...    Directory=${nas_dir}    ELSE IF    '${nas_type}' == 'SMB/CIFS'    Netsdk Set Net Disk Config    ${net_disk_no}    netdisk_type=NAS
+    ...    nas_type=SMB/CIFS    netdisk_IpV4=${nas_ip}    Directory=${nas_dir}    cifs_name=${cifs_name}    cifs_pwd=${cifs_psw}
+
+Cruise Point Capture
+    # 调用预置点1
+    Netsdk Ptz Preset Without Preview    ${channel}    GOTO_PRESET    1
+    # 判断设备是否静止下来
+    ${abandom_pos}    Check Device Pt Change    ${IP}    ${Port}    ${user}    ${password}
+    Log    ${abandom_pos}
+    # 获取巡航路径1的预置点信息字典
+    ${PTZCruise_dict}    Netsdk Get Ptz Cruise Info    ${channel}    ${route_no}
+    ${PTZCruise1_num}    Get Length    ${PTZCruise_dict}
+    Log    ${PTZCruise1_num}
+    #获取1通道主码流当前分辨率
+    ${Resolution_dict}    Netsdk Get Compress Cfg    ${channel}    Main    Resolution
+    ${Resolution_get}    Set Variable    ${Resolution_dict['Resolution']}
+    ${Resolution_get}    Replace String    ${Resolution_get}    *    X
+    # 获取设备时间
+    ${now_device_time}    Netsdk Get Time Cfg
+    ${device_time_list}    Split String    ${now_device_time}
+    ${now_device_date}    Set Variable    ${device_time_list[0]}
+    ${now_device_time}    Replace String    ${now_device_time}    :    -
+    Create Directory    ${tool_dir}\\Capture\\${now_device_date}\\${IP}
+    # 在巡航路径1的预置点数中循环抓图
+    : FOR    ${i}    IN RANGE    1    ${PTZCruise1_num} + 1
+    \    ${temp_flag}    Check Device Pt Change    ${IP}    ${Port}    ${user}    ${password}
+    \    ${pic_path}    Set Variable    ${tool_dir}\\Capture\\${now_device_date}\\${IP}\\${IP}_${Resolution_get}_${now_device_time}_${i}.jpeg
+    \    Run Keyword If    '${temp_flag}' == 'False'    Netsdk Device Capture Jpeg Picture New    ${pic_path}    ${channel}    Better
+    \    ...    Auto
+    \    Sleep    ${PTZCruise_dict[${i}]['dwell']}    # 等待一段时间，当前预置点的停留数，保证下次抓图时设备已经到达下个预置点
+    Log    预置点抓图结束!

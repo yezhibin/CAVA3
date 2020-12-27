@@ -1,0 +1,14 @@
+运行环境：python27\HITA环境
+
+准备工作：
+
+1、工具解压后整个文件夹放在任意文件夹下；
+
+2、确认工具目录下有3个重要文件：xmlconvert.pyc、get_html.py、start.bat,1个文件夹：src_xml；
+
+
+操作步骤：
+1、将需要转化的xml文件复制到文件夹“src_xml”中；
+2、打开文件“get_html.py”，在main方法中将变量report_dir_tag改为想要改的值，保存，关闭；
+3、运行批处理“start.bat”，提示成功即可，log.html和report.html保存在工具文件夹“output”下。
+

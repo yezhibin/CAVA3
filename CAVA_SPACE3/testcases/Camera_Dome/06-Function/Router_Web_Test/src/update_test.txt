@@ -1,0 +1,28 @@
+*** Settings ***
+Suite Setup       Login
+Suite Teardown    Close Browser
+Library           Selenium2Library
+Library           BaseLib
+Resource          ../public/variables.txt
+Resource          ../public/keywords.txt
+
+*** Test Cases ***
+update
+    Wait Until Page Contains Element    ${high_config_obj}
+    Click Element    ${high_config_obj}
+    Wait Until Page Contains Element    ${device_manage_obj}
+    Click Element    ${device_manage_obj}
+    Wait Until Page Contains Element    ${soft_update_obj}
+    Click Element    ${soft_update_obj}
+    Wait Until Page Contains Element    ${update_file_input_obj}
+    Evaluate    BaseLib.BaseLib().set_text_to_clipboard("${pack_pth}")    BaseLib
+    Comment    ${a}    Evaluate    BaseLib().get_pc_nowtime()
+    Wait Until Page Contains Element    xpath=//input[@class='subBtnRect fileBrowse']
+    Click Element    xpath=//input[@class='subBtnRect fileBrowse']
+    keyboard_simulate_ctrl_v
+    Keyboard Simulate Enter
+    #Choose File    ${update_file_input_obj}    D:\\image.png
+    Sleep    10
+    Close Browser
+
+*** Keywords ***

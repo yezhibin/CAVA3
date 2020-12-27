@@ -1,0 +1,38 @@
+*** Variables ***
+${IP}             192.168.1.155    #设备IP
+${Port}           8000    #设备端口号
+${user}           admin    #用户名
+${password}       admin123456    #登录密码
+${new_psw}        test1234    #admin新密码
+${set_admin_new_psw}    N    #设置admin新密码，默认为N，不修改
+${restore_cfg_opt}    N    #简单恢复参数选项，默认N，不恢复
+${get_attr_opt}    N    #获取设备属性选项，默认N，不获取
+${set_nas_opt}    N    #设置NAS挂载总选项，默认N，不挂载
+${nas1_opt}       N    #设置NAS1盘挂载选项，默认N，不挂载
+${nas_ip1}        11.33.10.161    #NAS1服务器IP，对应磁盘号为1
+${nas_dir1}       /dvr/test    #NFS盘1目录
+${nas_type1}      NFS    #NAS盘1的类型，NFS或者SMB/CIFS，默认为NFS
+${cifs_name1}     test    #NAS盘1为CIFS时的用户名
+${cifs_psw1}      test    #NAS盘1为CIFS时的密码
+${nas2_opt}       N    #设置NAS2盘挂载选项，默认N，不挂载
+${nas_ip2}        11.33.10.161    #NAS2服务器IP，对应磁盘号为1
+${nas_dir2}       /dvr/test    #NFS盘2目录
+${nas_type2}      NFS    #NAS盘2的类型，NFS或者SMB/CIFS，默认为NFS
+${cifs_name2}     test    #NAS盘2为CIFS时的用户名
+${cifs_psw2}      test    #NAS盘2为CIFS时的密码
+${format_opt}     N    #NAS盘全格式化选项，默认为N，不格式化
+${ssh_opt}        N    #确保SSH服务开启选项，默认为N，不会确保开启
+${get_camera_opt}    N    #获取机芯型号选项，默认为N，不获取
+${modify_ip_opt}    N    #修改ipv4地址选项，默认N，不修改
+${new_IP}         10.65.66.163    #设备新的IPV4地址
+${gateway}        10.65.66.254    #设备新的网关
+${link_check_opt}    N    #检测dmesg返回消息是否包含link up和down，默认N，不检测
+${point_capture_opt}    N    #预置点抓图选项，默认N，不抓图，主要用于云台精准度辅助测试
+${tool_dir}       D:\\CAVA_SPACE\\testcases\\Camera_Dome\\07-Public_Stability\\Batch_Set_Basic_Opt_Tool
+${channel}        1    # 通道号，从1开始
+${route_no}       1    # 巡航路径号，默认为1，范围1-8
+${ping_opt}       N    #ping选项，默认N，不测试
+${ping_mode}      1    #ping模式，1-回复数是有限的ping，默认方式；2-持续地ping
+${ping_size}      32    #ping字节包大小，默认为32字节
+${ping_count}     4    #回复数大小，默认为4，该参数仅在有限的ping下有效
+${ping_log_dir}    D:\\ping_info    #ping日志保存目录，默认为D:\\ping_info

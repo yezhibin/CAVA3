@@ -1,0 +1,60 @@
+*** Settings ***
+Library           RequestsLibrary
+Library           Collections
+Library           string
+Library           XML
+Library           OperatingSystem
+
+*** Variables ***
+${counts}         10
+${task_id}        1    #任务ID
+
+*** Test Cases ***
+登录模拟_内网
+    #创建会话header
+    ${dict}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Referer=http://192.168.1.102:81/GetHoseInfoSys/index.php
+    ${data}    Create Dictionary    username=admin    pwd=test1234    pcname=hello
+    #创建digest会话
+    Create Session    alias=api    url=http://192.168.1.102:81
+    ${addr}    Post Request    api    /GetHoseInfoSys/index_ok.php    data=${data}    headers=${dict}
+    Log    ${addr.content}
+    Log    ${addr.status_code}
+    Pass Execution If    '${addr.content}' =='pass'    登陆失败
+
+登录模拟_外网
+    #创建会话header
+    ${dict}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Referer=http://zoudaohoutian.xicp.net:16084/GetHoseInfoSys/index.php
+    ${data}    Create Dictionary    username=admin    pwd=test1234    pcname=hello
+    #创建digest会话
+    Create Session    alias=api    url=http://zoudaohoutian.xicp.net:16084
+    ${addr}    Post Request    api    /GetHoseInfoSys/index_ok.php    data=${data}    headers=${dict}
+    Log    ${addr.content}
+    Log    ${addr.status_code}
+    Pass Execution If    '${addr.content}' =='pass'    登陆失败
+
+neuq
+    ${counts}    Set Variable    720
+    : FOR    ${i}    IN RANGE    ${counts}
+    \    group_add    100
+    \    Run Keyword If    ${i} < ${counts} \ - 1    Sleep    20
+
+*** Keywords ***
+group_add
+    [Arguments]    ${times}    ${wait_time}=1
+    #创建会话header
+    ${dict}    Create Dictionary    User-Agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0
+    #创建digest会话
+    Create Session    alias=api    url=https://so.m.sm.cn
+    : FOR    ${i}    IN RANGE    ${times}
+    \    Sleep    ${wait_time}
+    \    ${addr}    get_request    api    /api/rest?method=tools.vote&sc=gaokao_school_vote&act=add&t=1528125515271&item=11d1432c-5db4-11e5-bd41-d43d7e6fab60&callback=jsonp2    ${dict}
+    \    Log    ${addr.content}
+    \    Log    ${addr.status_code}
+    \    ${retStr}    Set Variable    ${addr.content}
+    \    ${pos1}    find    ${retStr}    :
+    \    ${pos1}    Evaluate    ${pos1}+1
+    \    ${pos2}    find    ${retStr}    }
+    \    #${pos2}    Evaluate    ${pos2}-1
+    \    ${times}    Set Variable    ${retStr[${pos1}:${pos2}]}
+    \    Log    ${times}
+    Delete All Sessions

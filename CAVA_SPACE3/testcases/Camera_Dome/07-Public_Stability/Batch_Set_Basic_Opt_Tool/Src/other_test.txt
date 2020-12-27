@@ -1,0 +1,47 @@
+*** Settings ***
+Documentation     \# 2016年11月10日20:06:20
+Resource          ../variables/variables.txt
+Library           BaseLib
+Library           OperatingSystem
+
+*** Variables ***
+
+*** Test Cases ***
+other-1 Ping_IP测试
+    #1.0.1    2016年11月11日01:41:36
+    #${ping_opt}    Set Variable    Y
+    Run Keyword If    '${ping_opt}' == 'Y'    ping_with_no_log
+    ...    ELSE    Keylog    未选择该项，不进行Ping包测试!!
+
+*** Keywords ***
+ping_with_log
+    ${ping_cofig}    Set variable If    '${ping_mode}' == '1'    ping字节包大小为${ping_size} ，回复数为${ping_count}    '${ping_mode}' == '2'    ping字节包大小为${ping_size}，持续在ping。
+    ${ping_return_msg_kw}    Run Keyword If    '${ping_mode}' == '1'    Ping IP    ${IP}    ping_mode=${ping_mode}    count=${ping_count}
+    ...    size=${ping_size}    save_dir=${ping_log_dir}
+    ...    ELSE IF    '${ping_mode}' == '2'    Ping IP    ${IP}    ping_mode=${ping_mode}    size=${ping_size}
+    ...    save_dir=${ping_log_dir}
+    Log    打印:\r\n${ping_return_msg_kw}
+    ${flag}    Check Contain Substring    ${ping_return_msg_kw}    丢失 = 0 (0% 丢失)
+    Run Keyword If    "${flag}" == "False"    本P测试主机ping前端设备${IP}过程中有丢包，ping配置${ping_cofig}。具体参见日志${ping_log_dir}日志或者log.html报告!
+    [Return]    ${ping_return_msg_kw}
+
+ping_with_no_log
+    ${ping_cofig}    Set variable If    '${ping_mode}' == '1'    字节包大小为${ping_size} ，回复数为${ping_count}    '${ping_mode}' == '2'    字节包大小为${ping_size}，持续在ping。
+    ${ping_return_msg_kw}    Run Keyword If    '${ping_mode}' == '1'    Ping IP    ${IP}    ping_mode=${ping_mode}    count=${ping_count}
+    ...    size=${ping_size}
+    ...    ELSE IF    '${ping_mode}' == '2'    Ping IP    ${IP}    ping_mode=${ping_mode}    size=${ping_size}
+    Log    打印:\r\n${ping_return_msg_kw}
+    ${flag_0}    Check Contain Substring    ${ping_return_msg_kw}    0% 丢失
+    ${flag_100}    Check Contain Substring    ${ping_return_msg_kw}    100% 丢失
+    ${flag_avr}    Check Contain Substring    ${ping_return_msg_kw}    平均 =
+    ${now_pc_time}    Get Timestamp    %Y-%m-%d_%H-%M-%S    Now
+    ${now_pc_date}    Get Timestamp    %Y-%m-%d    Now
+    #绿色-畅通(占用)    红色-不通(空闲)    黄色-受阻(占用)
+    ${status}    Set Variable If    "${flag_0}" == "True" and "${flag_avr}" == "True"    green    "${flag_100}" == "True" or ("${flag_0}" == "True" and "${flag_avr}" \ == "False")    red    ("${flag_0}" == "False" and "${flag_avr}" \ == "True") or ("${flag_100}" == "False" and "${flag_avr}" \ == "True")
+    ...    yellow
+    ${log_abs_path}    Set Variable If    "${status}" == "green"    ${ping_log_dir}\\${now_pc_date}\\畅通(占用)\\${IP}_${now_pc_time}.txt    "${status}" == "red"    ${ping_log_dir}\\${now_pc_date}\\不通(空闲)\\${IP}_${now_pc_time}.txt    "${status}" == "yellow"
+    ...    ${ping_log_dir}\\${now_pc_date}\\受阻(占用)\\${IP}_${now_pc_time}.txt
+    Append To File    ${log_abs_path}    ${ping_return_msg_kw}
+    Run Keyword If    "${status}" == "green"    keyLog    ${IP}畅通(占用)! 字节包大小为${ping_size} ，回复数为${ping_count}
+    ...    ELSE IF    "${status}" == "red"    Keylog    ${IP}不通(空闲)! 字节包大小为${ping_size} ，回复数为${ping_count}
+    ...    ELSE IF    "${status}" == "yellow"    Fail    ${IP}受阻(占用)! 字节包大小为${ping_size} ，回复数为${ping_count}，详细ping记录请查看${log_abs_path}或者log.html!!

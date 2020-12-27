@@ -1,0 +1,1 @@
+1、压缩包解压缩后将整个文件夹“Batch_Set_Device_CfgV1_0”存放在D:\HITA_HOME\testcases\Camera_Dome\07-Public_Stability下

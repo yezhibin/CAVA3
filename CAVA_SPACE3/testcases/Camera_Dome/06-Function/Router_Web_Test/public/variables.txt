@@ -1,0 +1,13 @@
+*** Variables ***
+${router_ip}      192.168.4.1
+${password}       admin12345
+${pwd_obj}        id=lgPwd
+${login_btn_obj}    xpath=//i[@class='btnR']
+${high_config_obj}    xpath=//ul[@class='headFunc']/li[2]
+${device_manage_obj}    id=sysTool_menu
+${soft_update_obj}    id=sysTool_menu2
+${reboot_tab_obj}    id=sysTool_menu5
+${reboot_btn_obj}    id=sysReboot
+${reboot_ok_btn_obj}    xpath=//input[@class='subBtn']
+${update_file_input_obj}    id=textfield
+${pack_pth}       E:\temp

@@ -1,0 +1,31 @@
+*** Settings ***
+Library           ../lib/MyCustomLib.py
+Library           SSHLibrary
+Library           MyLib.BaseLib
+
+*** Test Cases ***
+test
+    @{list}    Create List    1    2    3    4    5
+    ${ele1}    MyCustomLib.Get Element From List    @{list}
+    Keylog    ${ele1}
+
+ssh_test
+    Set Library Search Order    SSHLibrary    Telnet
+    #Open Connection    192.168.0.136
+    Open Connection    qinfengjishu.imwork.net    port=15734    timeout=20
+    Set Client Configuration    timeout=5    prompt=$
+    Login    yezhibin    admin12345
+    ${now_pc_time}    Get Timestamp    %Y-%m-%d -%H-%M-%S    Now
+    ${now_pc_date}    Get Timestamp    %Y-%m-%d    Now
+    Write    ifconfig
+    ${ifconfig_str}    Read Until Prompt
+    Log    ${ifconfig_str}
+    Comment    Write    dmesg
+    Comment    ${dmesg_info_str}    Read    INFO    5
+    Comment    Close Connection
+    Comment    Log    ${dmesg_info_str}
+    Comment    ${flag}    Check Contain Substring    ${dmesg_info_str}    Link is Down
+    Comment    ${dev_dic}    Netsdk Get Device Info Cfg V40    DevTypeName
+    Comment    Run Keyword If    "${flag}" == "True"    KeyLog    ${dev_dic['DevTypeName']}
+    Comment    Run Keyword If    "${flag}" == "True"    Append To File    ${tool_dir}\\ssh_info\\${now_pc_date}\\${IP}_${now_pc_time}.txt    \#ifconfig\r\n${ifconfig_str}dmesg\r\n${dmesg_info_str}
+    Comment    Should Not Be True    "${flag}" == "True"    demsg包含Link Up Down信息!!
