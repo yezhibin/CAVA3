@@ -21,9 +21,9 @@ export PATH=/usr/local/lib:/usr/local/bin:$PATH
 # 1.将以下内容复制到.sh文件中，账号密码需要修改成自己的，并重命名为cava_install_linux.sh
 #!/bin/sh
 mode_branch=centos7_x86_64
-username="yezhibin"
-password="199309024710yzb"
-url="github.com/yezhibin/CAVA3.git"
+username="yourname"
+password="your password"
+url="gitee.com/zoudaohoutian/CAVA3.git"
 cmd="git clone https://${username}:${password}@${url} ./CAVA3"
 
 time=$(date "+%Y-%m-%d %H:%M:%S")
