@@ -24,7 +24,7 @@ export PATH=/usr/local/lib:/usr/local/bin:$PATH
 mode=$1
 username="your name"
 password="your password"
-url="github.com/yezhibin/CAVA3.git"
+url="gitee.com/zoudaohoutian/CAVA3.git"
 cmd="git clone https://${username}:${password}@${url} d:/CAVA3"
 
 
