@@ -23,8 +23,8 @@ export PATH=/usr/local/lib:/usr/local/bin:$PATH
 mode_branch=centos7_x86_64
 username="yourname"
 password="your password"
-url="gitee.com/zoudaohoutian/CAVA3.git"
-cmd="git clone https://${username}:${password}@${url} ./CAVA3"
+url="192.168.0.132:8081/r/CAVA3.git"
+cmd="git clone http://${username}:${password}@${url} ./CAVA3"
 
 time=$(date "+%Y-%m-%d %H:%M:%S")
 echo "[${time}][info] start install cava3. url is: ${url}"
