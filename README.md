@@ -35,6 +35,7 @@ ln -s /usr/local/bin/CAVA3/CAVA_SPACE3/src/cava
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/robotframework-3.0.3-py3.7.egg/EGG-INFO/scripts/pybot
 ln -s ./CAVA3/Python37/lib/python3.7/site-packages/pip/pip3
 ln -s ./CAVA3/Python37/bin/python3.7 python3
+ln -s ./CAVA3/Python37/lib/python3.7/site-packages/robotframework-3.0.3-py3.7.egg/EGG-INFO/scripts/rebot
 
 cd ./CAVA3
 git fetch "origin"
