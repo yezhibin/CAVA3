@@ -1,9 +1,10 @@
 *** Settings ***
 Library           RequestsLibrary
 Library           Collections
-Library           string
+Library           String
 Library           XML
 Library           OperatingSystem
+Library           MyCustomLib.py
 
 *** Variables ***
 ${counts}         10
@@ -37,6 +38,28 @@ neuq
     : FOR    ${i}    IN RANGE    ${counts}
     \    group_add    100
     \    Run Keyword If    ${i} < ${counts} \ - 1    Sleep    20
+
+bungzoo_login
+    #创建会话header
+    ${dict}    Create Dictionary    Content-Type=application/json
+    ${username}    Set Variable    test
+    ${random}    gen_random
+    ${timestamp}    Get Time    epoch
+    ${timestamp}    Evaluate    "%d" %${timestamp}
+    ${pwd}    Set Variable    test1234
+    ${plain}    Set Variable    ${username}${pwd}${random}${timestamp} \
+    #去除空格
+    ${plain}    Evaluate    '${plain}'.strip()
+    ${nonce}    Gen_sha256_hash    ${plain}
+    ${data}    Create Dictionary    username=${username}    nonce=${nonce}    random=${random}    timestamp=${timestamp}
+    ${json_data}    Evaluate    json.dumps(${data})    json
+    Log Many    ${data}    ${plain}
+    #创建digest会话
+    Create Session    alias=api    url=http://139.198.176.69:4002
+    ${addr}    Post Request    api    /user/auth    data=${data}    headers=${dict}
+    Log    resp=${addr.content}
+    Log    status=${addr.status_code}
+    Should Contain    '${addr.content}'    pass
 
 *** Keywords ***
 group_add
