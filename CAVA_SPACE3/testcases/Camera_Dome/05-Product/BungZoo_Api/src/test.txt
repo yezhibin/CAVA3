@@ -32,7 +32,7 @@ ${password}       test1234    # 密码
     ${ret_tmp}    Evaluate    ${ret_list}[1]
     ${ok}    Evaluate    ${ret_list}[0]
     ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
-    Run Keyword If    '${ret}' == 'error'    Log    测试通过
+    Run Keyword If    '${ret}' == 'wrong password'    Log    测试通过
     ...    ELSE    Fail    测试失败
     [Teardown]    disconnect
 
@@ -85,7 +85,7 @@ ${password}       test1234    # 密码
     \    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    unknown
     \    ${ret_list1}    Split String    ${ret}    ,
     \    ${ret_info}    Get From List    ${ret_list1}    0
-    \    Run Keyword If    '${ret_info}' == 'locked'    Pass Execution    测试通过
+    \    Run Keyword If    '${ret_info}' == 'locked'    Log    测试通过
     \    Run Keyword If    ${i} == ${7} and '${ret_info}' != 'locked'    Fail    测试失败
     [Teardown]    disconnect
 
