@@ -129,8 +129,8 @@ ${password}       test1234    # 密码
     Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
     ${encrypt_pwd}    Rsa Encpypt    ${password}    ${ret}
     ${username}    Gen Random
-    ${data}    Create Dictionary    option=register    algorithm=RSA    username=${username}     password=${encrypt_pwd}    phone=18868871622
-    ...    code=185622    level=renter
+    ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=18898871627    code=185622
+    ...    level=renter
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
