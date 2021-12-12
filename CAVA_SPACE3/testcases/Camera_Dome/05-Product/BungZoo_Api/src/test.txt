@@ -3,12 +3,14 @@ Library           RequestsLibrary
 Library           Collections
 Library           String
 Library           MyLib.BaseLib
+Library           OperatingSystem
 
 *** Variables ***
 ${host}           139.198.176.69    # 服务器ip
 ${port}           4002    # 服务端口
 ${username}       test    # 用户名
 ${password}       test1234    # 密码
+${house_pic_url}    \    # 房源图片全局变量
 
 *** Test Cases ***
 登录失败_密码错误
@@ -89,6 +91,21 @@ ${password}       test1234    # 密码
     \    Run Keyword If    ${i} == ${7} and '${ret_info}' != 'locked'    Fail    测试失败
     [Teardown]    disconnect
 
+注册_获取手机验证码
+    [Setup]    connect_server
+    #发送请求
+    ${resp}    Get Request    api    /user/send-sms/18268891099
+    Log    resp_content=${resp.text}
+    Log    status=${resp.status_code}
+    ${ret_json}    Evaluate    str(${resp.text})
+    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']['phone']
+    ${ret_tmp}    Evaluate    ${ret_list}[1]
+    ${ok}    Evaluate    ${ret_list}[0]
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]    disconnect
+
 注册_获取公钥证书
     [Setup]    connect_server
     #创建会话header
@@ -104,8 +121,7 @@ ${password}       test1234    # 密码
     ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
     ${ret_tmp}    Evaluate    ${ret_list}[1]
     ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''    #Run Keyword If    '${ret}' == 'pass'
-    ...    # Log    测试通过    # ELSE    Fail    测试失败
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
     Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
     [Teardown]    disconnect
 
@@ -124,8 +140,7 @@ ${password}       test1234    # 密码
     ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
     ${ret_tmp}    Evaluate    ${ret_list}[1]
     ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''    #Run Keyword If    '${ret}' == 'pass'
-    ...    # Log    测试通过    # ELSE    Fail    测试失败
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
     Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
     ${encrypt_pwd}    Rsa Encpypt    ${password}    ${ret}
     ${username}    Gen Random
@@ -159,7 +174,7 @@ ${password}       test1234    # 密码
     ${detail}    Gen Random
     ${houseInfo_ele}    Create Dictionary    publishTime=${publish_time}    title=测试房源    price=5000元/月    size=三室一厅    detail=${detail}
     ...    location=杭州滨江区长江小区    updatedAt=${publish_time}
-    ${houseInfo_list}     Create List    ${houseInfo_ele}
+    ${houseInfo_list}    Create List    ${houseInfo_ele}
     ${data}    Create Dictionary    houseInfo=${houseInfo_list}
     Log Many    ${data}
     #发送请求
@@ -171,10 +186,57 @@ ${password}       test1234    # 密码
     ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
     ${ret_tmp}    Evaluate    ${ret_list}[1]
     ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''    #Run Keyword If    '${ret}' == 'pass'
-    ...    # Log    测试通过    # ELSE    Fail    测试失败
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
     Run Keyword If    '${ret}' == 'ok'    Log    测试通过
     ...    ELSE    Fail    测试失败
+    [Teardown]    disconnect
+
+强制上传房源图片_成功
+    [Setup]    connect_server
+    #创建会话header
+    ${wsse_time}    gen_wsse_time
+    ${random}    Gen Random
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
+    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE
+    ${publish_time}    Get Pc Nowtime
+    ${detail}    Gen Random
+    ${file_path}    Set Variable    D:/test.jpg
+    ${file1}    Evaluate    (open(r'${file_path}','rb'))
+    ${files}    Create Dictionary    file=${file1}
+    Log Many    ${files}
+    #发送请求
+    ${resp}    Post Request    api    /house/upload    files=${files}    headers=${headers_dict}
+    Log    resp_content=${resp.text}
+    Log    status=${resp.status_code}
+    ${ret_json}    Evaluate    str(${resp.text})
+    Log    ${ret_json}
+    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
+    ${ret_tmp}    Evaluate    ${ret_list}[1]
+    ${ok}    Evaluate    ${ret_list}[0]
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    Set Global Variable    ${house_pic_url}    ${ret}
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]    disconnect
+
+下载房源图片
+    [Setup]    connect_server
+    #发送请求
+    ${pic_uri}    Fetch From Right    ${house_pic_url}    ${port}
+    ${file_basename}    Fetch From Right    ${pic_uri}    /
+    ${wsse_time}    gen_wsse_time
+    ${random}    Gen Random
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
+    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}
+    ${resp}    Get Request    api    ${pic_uri}    headers=${headers_dict}
+    Log    resp_content=${resp.content}
+    Log    status=${resp.status_code}
+    ${random}    Gen Random
+    ${pic_save_pth}    Set Variable    D:/tmp/${random}_${file_basename}
+    ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:/tmp
+    File Should Exist    ${pic_save_pth}    msg=测试失败
     [Teardown]    disconnect
 
 *** Keywords ***
