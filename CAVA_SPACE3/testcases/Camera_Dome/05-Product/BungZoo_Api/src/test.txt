@@ -7,7 +7,7 @@ Library           OperatingSystem
 
 *** Variables ***
 ${host}           139.198.176.69    # 服务器ip
-${port}           4002    # 服务端口
+${port}           4001    # 服务端口
 ${username}       test    # 用户名
 ${password}       test1234    # 密码
 ${house_pic_url}    \    # 房源图片全局变量
@@ -201,7 +201,7 @@ ${house_pic_url}    \    # 房源图片全局变量
     ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE
     ${publish_time}    Get Pc Nowtime
     ${detail}    Gen Random
-    ${file_path}    Set Variable    D:/test.jpg
+    ${file_path}    Set Variable    D:\\test.jpg
     ${file1}    Evaluate    (open(r'${file_path}','rb'))
     ${files}    Create Dictionary    file=${file1}
     Log Many    ${files}
@@ -225,17 +225,18 @@ ${house_pic_url}    \    # 房源图片全局变量
     #发送请求
     ${pic_uri}    Fetch From Right    ${house_pic_url}    ${port}
     ${file_basename}    Fetch From Right    ${pic_uri}    /
-    ${wsse_time}    gen_wsse_time
+    Comment    ${wsse_time}    gen_wsse_time
+    Comment    ${random}    Gen Random
+    Comment    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}
+    ...    bungzoo
+    Comment    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    Comment    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}
+    Comment    ${resp}    Get Request    api    ${pic_uri}    headers=${headers_dict}
+    Comment    Log    resp_content=${resp.content}
+    Comment    Log    status=${resp.status_code}
     ${random}    Gen Random
-    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
-    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
-    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}
-    ${resp}    Get Request    api    ${pic_uri}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
-    Log    status=${resp.status_code}
-    ${random}    Gen Random
-    ${pic_save_pth}    Set Variable    D:/tmp/${random}_${file_basename}
-    ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:/tmp
+    ${pic_save_pth}    Set Variable    D:\\tmp\\${random}_${file_basename}
+    ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:\\tmp
     File Should Exist    ${pic_save_pth}    msg=测试失败
     [Teardown]    disconnect
 
