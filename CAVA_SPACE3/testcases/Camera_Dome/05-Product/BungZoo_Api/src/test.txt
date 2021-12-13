@@ -1,4 +1,6 @@
 *** Settings ***
+Suite Setup       connect_server    ${enable_https}
+Suite Teardown    disconnect
 Library           RequestsLibrary
 Library           Collections
 Library           String
@@ -7,192 +9,139 @@ Library           OperatingSystem
 
 *** Variables ***
 ${host}           139.198.176.69    # 服务器ip
-${port}           4001    # 服务端口
+${port}           4002    # 服务端口
 ${username}       test    # 用户名
 ${password}       test1234    # 密码
+${enable_https}    false    # 启用https
 ${house_pic_url}    \    # 房源图片全局变量
 
 *** Test Cases ***
+注册_获取手机验证码
+    [Setup]
+    #发送请求
+    ${resp}    Get Request    api    /user/send-sms/18268891099
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['phone']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
+注册_获取公钥证书
+    [Setup]
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    Create Dictionary    option=queryPubkey    algorithm=RSA
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
+    [Teardown]
+
 登录失败_密码错误
-    [Setup]    connect_server
+    [Setup]
     #设置错误密码
     ${password}    Set Variable    test12345
     #创建会话header
     ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${random}    gen_random
-    ${timestamp}    Get Time    epoch
-    ${timestamp}    Evaluate    "%d" %${timestamp}
-    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${timestamp}    bungzoo
-    ${data}    Create Dictionary    username=${username}    nonce=${nonce}    random=${random}    timestamp=${timestamp}
+    ${data}    gen_wsse_password    ${username}    ${password}
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
+    Log    resp_content=${resp.json()}
     Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['error']['message']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    ${ret}    get_value_from_resp    ${resp}    ['error']['message']
     Run Keyword If    '${ret}' == 'wrong password'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
+    [Teardown]
 
-登录成功
-    [Setup]    connect_server
+注册_注册成功
+    [Setup]
     #创建会话header
     ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${random}    gen_random
-    ${timestamp}    Get Time    epoch
-    ${timestamp}    Evaluate    "%d" %${timestamp}
-    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${timestamp}    bungzoo
-    ${data}    Create Dictionary    username=${username}    nonce=${nonce}    random=${random}    timestamp=${timestamp}
+    ${data}    Create Dictionary    option=queryPubkey    algorithm=RSA
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
+    ${encrypt_pwd}    Rsa Encpypt    ${password}    ${ret}
+    ${username}    Gen Random
+    ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=18298871627    code=185622
+    ...    level=renter
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' == 'succeed'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
+登录成功
+    [Setup]
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    gen_wsse_password    ${username}    ${password}
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
+    Log    resp_content=${resp.json()}
     Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    ${ret}    get_value_from_resp    ${resp}    ['data']
     Run Keyword If    '${ret}' == 'pass'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
+    [Teardown]
 
 登录失败_锁定
-    [Setup]    connect_server
+    [Setup]
     #设置错误密码
     ${password}    Set Variable    test12345
     #创建会话header
     ${headers_dict}    Create Dictionary    Content-Type=application/json
     ${count}    Set Variable    8
     : FOR    ${i}    IN RANGE    1    ${count}
-    \    ${random}    gen_random
-    \    ${timestamp}    Get Time    epoch
-    \    ${timestamp}    Evaluate    "%d" %${timestamp}
-    \    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${timestamp}
-    \    ...    bungzoo
-    \    ${data}    Create Dictionary    username=${username}    nonce=${nonce}    random=${random}    timestamp=${timestamp}
+    \    ${data}    gen_wsse_password    ${username}    ${password}
     \    Log Many    ${data}
     \    #发送请求
     \    ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
-    \    Log    resp_content=${resp.content}
-    \    Log    status=${resp.status_code}
-    \    ${ret_json}    Evaluate    str(${resp.content})
-    \    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['error']['message']
-    \    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    \    ${ok}    Evaluate    ${ret_list}[0]
-    \    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    unknown
+    \    Log    resp_content=${resp.json()}
+    \    ${ret}    get_value_from_resp    ${resp}    ['error']['message']
     \    ${ret_list1}    Split String    ${ret}    ,
     \    ${ret_info}    Get From List    ${ret_list1}    0
     \    Run Keyword If    '${ret_info}' == 'locked'    Log    测试通过
     \    Run Keyword If    ${i} == ${7} and '${ret_info}' != 'locked'    Fail    测试失败
-    [Teardown]    disconnect
-
-注册_获取手机验证码
-    [Setup]    connect_server
-    #发送请求
-    ${resp}    Get Request    api    /user/send-sms/18268891099
-    Log    resp_content=${resp.text}
-    Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.text})
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']['phone']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
-    Run Keyword If    '${ret}' != ''    Log    测试通过
-    ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
-
-注册_获取公钥证书
-    [Setup]    connect_server
-    #创建会话header
-    ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${data}    Create Dictionary    option=queryPubkey    algorithm=RSA
-    Log Many    ${data}
-    #发送请求
-    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
-    Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    Log    ${ret_json}
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
-    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
-    [Teardown]    disconnect
-
-注册_注册成功
-    [Setup]    connect_server
-    #创建会话header
-    ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${data}    Create Dictionary    option=queryPubkey    algorithm=RSA
-    Log Many    ${data}
-    #发送请求
-    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
-    Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    Log    ${ret_json}
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
-    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
-    ${encrypt_pwd}    Rsa Encpypt    ${password}    ${ret}
-    ${username}    Gen Random
-    ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=18898871627    code=185622
-    ...    level=renter
-    Log Many    ${data}
-    #发送请求
-    ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
-    Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    Log    ${ret_json}
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''    #Run Keyword If    '${ret}' == 'pass'
-    ...    # Log    测试通过    # ELSE    Fail    测试失败
-    Run Keyword If    '${ret}' == 'succeed'    Log    测试通过
-    ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
+    [Teardown]
 
 上传房源_成功
-    [Setup]    connect_server
+    [Setup]
     #创建会话header
-    ${wsse_time}    gen_wsse_time
-    ${random}    Gen Random
-    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
-    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    ${wsse_info}    gen_wsse_header    ${username}    ${password}
     ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
     ${publish_time}    Get Pc Nowtime
     ${detail}    Gen Random
+    @{pic_url}    create list    www.test1.com    www.test2.com
     ${houseInfo_ele}    Create Dictionary    publishTime=${publish_time}    title=测试房源    price=5000元/月    size=三室一厅    detail=${detail}
-    ...    location=杭州滨江区长江小区    updatedAt=${publish_time}
+    ...    location=杭州滨江区长江小区    picURL=@{pic_url}    updatedAt=${publish_time}
     ${houseInfo_list}    Create List    ${houseInfo_ele}
     ${data}    Create Dictionary    houseInfo=${houseInfo_list}
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /house/update    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.content}
+    Log    resp_content=${resp.json()}
     Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.content})
-    Log    ${ret_json}
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    ${ret}    get_value_from_resp    ${resp}    ['data']
     Run Keyword If    '${ret}' == 'ok'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
+    [Teardown]
 
 强制上传房源图片_成功
-    [Setup]    connect_server
+    [Setup]
     #创建会话header
     ${wsse_time}    gen_wsse_time
     ${random}    Gen Random
@@ -207,33 +156,19 @@ ${house_pic_url}    \    # 房源图片全局变量
     Log Many    ${files}
     #发送请求
     ${resp}    Post Request    api    /house/upload    files=${files}    headers=${headers_dict}
-    Log    resp_content=${resp.text}
+    Log    resp_content=${resp.json()}
     Log    status=${resp.status_code}
-    ${ret_json}    Evaluate    str(${resp.text})
-    Log    ${ret_json}
-    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}['data']
-    ${ret_tmp}    Evaluate    ${ret_list}[1]
-    ${ok}    Evaluate    ${ret_list}[0]
-    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    ${ret}    get_value_from_resp    ${resp}    ['data']
     Set Global Variable    ${house_pic_url}    ${ret}
     Run Keyword If    '${ret}' != ''    Log    测试通过
     ...    ELSE    Fail    测试失败
-    [Teardown]    disconnect
+    [Teardown]
 
 下载房源图片
     [Setup]    connect_server
     #发送请求
     ${pic_uri}    Fetch From Right    ${house_pic_url}    ${port}
     ${file_basename}    Fetch From Right    ${pic_uri}    /
-    Comment    ${wsse_time}    gen_wsse_time
-    Comment    ${random}    Gen Random
-    Comment    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}
-    ...    bungzoo
-    Comment    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
-    Comment    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}
-    Comment    ${resp}    Get Request    api    ${pic_uri}    headers=${headers_dict}
-    Comment    Log    resp_content=${resp.content}
-    Comment    Log    status=${resp.status_code}
     ${random}    Gen Random
     ${pic_save_pth}    Set Variable    D:\\tmp\\${random}_${file_basename}
     ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:\\tmp
@@ -242,8 +177,38 @@ ${house_pic_url}    \    # 房源图片全局变量
 
 *** Keywords ***
 connect_server
+    [Arguments]    ${enable_https}=false
     #创建digest会话
-    Create Session    alias=api    url=http://${host}:${port}
+    ${url}    set variable if    '${enable_https}'=='true'    https://${host}:${port}    http://${host}:${port}
+    Create Session    alias=api    url=${url}
 
 disconnect
     Delete All Sessions
+
+get_value_from_resp
+    [Arguments]    ${resp}    ${json_path}
+    Log    resp_content=${resp.text}
+    Log    status=${resp.status_code}
+    ${ret_json}    Evaluate    str(${resp.json()})
+    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}${json_path}
+    ${ret_tmp}    Evaluate    ${ret_list}[1]
+    ${ok}    Evaluate    ${ret_list}[0]
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    [Return]    ${ret}
+
+gen_wsse_password
+    [Arguments]    ${username}    ${password}
+    ${random}    gen_random
+    ${timestamp}    Get Time    epoch
+    ${timestamp}    Evaluate    "%d" %${timestamp}
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${timestamp}    bungzoo
+    ${data}    Create Dictionary    username=${username}    nonce=${nonce}    random=${random}    timestamp=${timestamp}
+    [Return]    ${data}
+
+gen_wsse_header
+    [Arguments]    ${username}    ${password}
+    ${wsse_time}    gen_wsse_time
+    ${random}    Gen Random
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
+    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    [Return]    ${wsse_info}
