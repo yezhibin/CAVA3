@@ -15,6 +15,8 @@ ${password}       test1234    # 密码
 ${enable_https}    false    # 启用https
 ${house_pic_url}    \    # 房源图片全局变量
 ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
+${reg_user}       test    #新注册的用户名
+${reg_pwd}        test1234    #新注册的密码
 
 *** Test Cases ***
 注册_获取手机验证码
@@ -42,23 +44,6 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
     [Teardown]
 
-登录失败_密码错误
-    [Setup]
-    #设置错误密码
-    ${password}    Set Variable    test12345
-    #创建会话header
-    ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${data}    gen_wsse_password    ${username}    ${password}
-    Log Many    ${data}
-    #发送请求
-    ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.json()}
-    Log    status=${resp.status_code}
-    ${ret}    get_value_from_resp    ${resp}    ['error']['message']
-    Run Keyword If    '${ret}' == 'wrong password'    Log    测试通过
-    ...    ELSE    Fail    测试失败
-    [Teardown]
-
 注册_注册成功
     [Setup]
     #创建会话header
@@ -67,13 +52,17 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
-    Log    resp_content=${resp.json()}
     Log    status=${resp.status_code}
     ${ret}    get_value_from_resp    ${resp}    ['data']
     Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
-    ${encrypt_pwd}    Rsa Encpypt    ${password}    ${ret}
-    ${username}    Gen Random
-    ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=18298871627    code=185622
+    ${reg_pwd}    Set Variable    Abc123456
+    Set Global Variable    ${reg_pwd}
+    ${encrypt_pwd}    Rsa Encpypt    ${reg_pwd}    ${ret}
+    @{time}    Get Time    hour min sec
+    ${phone_time}    set variable    @{time}[0]@{time}[1]@{time}[2]
+    ${reg_user}    Set Variable    18298${phone_time}
+    Set Global Variable    ${reg_user}
+    ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=${reg_user}    code=185622
     ...    level=renter
     Log Many    ${data}
     #发送请求
@@ -85,11 +74,28 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     ...    ELSE    Fail    测试失败
     [Teardown]
 
+登录失败_密码错误
+    [Setup]
+    #设置错误密码
+    ${reg_pwd}    Set Variable    test12345
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['error']['message']
+    Run Keyword If    '${ret}' == 'wrong password'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
 登录成功
     [Setup]
     #创建会话header
     ${headers_dict}    Create Dictionary    Content-Type=application/json
-    ${data}    gen_wsse_password    ${username}    ${password}
+    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
@@ -103,12 +109,12 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
 登录失败_锁定
     [Setup]
     #设置错误密码
-    ${password}    Set Variable    test12345
+    ${reg_pwd}    Set Variable    test12345
     #创建会话header
     ${headers_dict}    Create Dictionary    Content-Type=application/json
     ${count}    Set Variable    8
     : FOR    ${i}    IN RANGE    1    ${count}
-    \    ${data}    gen_wsse_password    ${username}    ${password}
+    \    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
     \    Log Many    ${data}
     \    #发送请求
     \    ${resp}    Post Request    api    /user/auth    data=${data}    headers=${headers_dict}
@@ -150,7 +156,7 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE
     ${publish_time}    Get Pc Nowtime
     ${detail}    Gen Random
-    ${file_path}    Set Variable    D:\\test.jpg
+    ${file_path}    Set Variable    D:\\1.jpg
     ${file1}    Evaluate    (open(r'${file_path}','rb'))
     ${files}    Create Dictionary    file=${file1}
     Log Many    ${files}
@@ -165,6 +171,42 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
     [Teardown]
 
+查询房源
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${resp}    Get Request    api    /house/info?keyword=长江小区&size[]=l1&size[]=l2&page=1    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['total']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+
+查询城市辖区
+    [Setup]
+    #发送请求
+    ${city}    Set Variable    上海
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${resp}    Get Request    api    /house/city/district?city=${city}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['city'][0]['title']
+    Run Keyword If    '${ret}' == '${city}'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+
+查询城市辖区_不支持城市
+    [Setup]
+    #发送请求
+    ${city}    Set Variable    成都
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${resp}    Get Request    api    /house/city/district?city=${city}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['error']['code']
+    Run Keyword If    '${ret}' == '1022'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+
 下载房源图片
     [Setup]    connect_server
     #发送请求
@@ -175,18 +217,6 @@ ${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
     ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:\\tmp
     File Should Exist    ${pic_save_pth}    msg=测试失败
     [Teardown]    disconnect
-
-查询房源
-    [Setup]
-    #发送请求
-    ${wsse_info}    gen_wsse_header    ${username}    ${password}
-    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
-    ${resp}    Get Request    api    /house/info?keyword=西湖&size=l2&page=1    headers=${headers_dict}
-    Log    resp_content=${resp.json()}
-    ${ret}    get_value_from_resp    ${resp}    ['data']['total']
-    Run Keyword If    '${ret}' != ''    Log    测试通过
-    ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
 
 *** Keywords ***
 connect_server
