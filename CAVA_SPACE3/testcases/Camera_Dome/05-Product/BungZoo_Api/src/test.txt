@@ -14,9 +14,10 @@ ${username}       test    # 用户名
 ${password}       test1234    # 密码
 ${enable_https}    false    # 启用https
 ${house_pic_url}    \    # 房源图片全局变量
-${json_save_dir}    D:\\tmp\\test\\tmp\\    # json保存目录
+${space_dir}      \    # 空间目录，自动根据系统类型赋值
 ${reg_user}       test    #新注册的用户名
 ${reg_pwd}        test1234    #新注册的密码
+${sys_type}       \    #操作系统类型 linux windows
 
 *** Test Cases ***
 注册_获取手机验证码
@@ -41,7 +42,7 @@ ${reg_pwd}        test1234    #新注册的密码
     Log    status=${resp.status_code}
     ${ret}    get_value_from_resp    ${resp}    ['data']
     Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
     [Teardown]
 
 注册_注册成功
@@ -63,7 +64,7 @@ ${reg_pwd}        test1234    #新注册的密码
     ${reg_user}    Set Variable    18298${phone_time}
     Set Global Variable    ${reg_user}
     ${data}    Create Dictionary    option=register    algorithm=RSA    password=${encrypt_pwd}    phone=${reg_user}    code=185622
-    ...    level=renter
+    ...    level=owner
     Log Many    ${data}
     #发送请求
     ${resp}    Post Request    api    /user/register    data=${data}    headers=${headers_dict}
@@ -126,10 +127,32 @@ ${reg_pwd}        test1234    #新注册的密码
     \    Run Keyword If    ${i} == ${7} and '${ret_info}' != 'locked'    Fail    测试失败
     [Teardown]
 
+强制上传房源图片_成功
+    [Setup]
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE
+    ${publish_time}    Get Pc Nowtime
+    ${detail}    Gen Random
+    ${file_path}    Set Variable    ${space_dir}/1.jpg
+    ${file1}    Evaluate    (open(r'${file_path}','rb'))
+    ${files}    Create Dictionary    file=${file1}
+    Log Many    ${files}
+    #发送请求
+    ${resp}    Post Request    api    /house/upload    files=${files}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Set Global Variable    ${house_pic_url}    ${ret}
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    [Teardown]
+
 上传房源_成功
     [Setup]
     #创建会话header
-    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
     ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
     ${publish_time}    Get Pc Nowtime
     ${detail}    Gen Random
@@ -146,29 +169,7 @@ ${reg_pwd}        test1234    #新注册的密码
     ${ret}    get_value_from_resp    ${resp}    ['data']
     Run Keyword If    '${ret}' == 'ok'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
-    [Teardown]
-
-强制上传房源图片_成功
-    [Setup]
-    #创建会话header
-    ${wsse_info}    gen_wsse_header    ${username}    ${password}
-    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE
-    ${publish_time}    Get Pc Nowtime
-    ${detail}    Gen Random
-    ${file_path}    Set Variable    D:\\1.jpg
-    ${file1}    Evaluate    (open(r'${file_path}','rb'))
-    ${files}    Create Dictionary    file=${file1}
-    Log Many    ${files}
-    #发送请求
-    ${resp}    Post Request    api    /house/upload    files=${files}    headers=${headers_dict}
-    Log    resp_content=${resp.json()}
-    Log    status=${resp.status_code}
-    ${ret}    get_value_from_resp    ${resp}    ['data']
-    Set Global Variable    ${house_pic_url}    ${ret}
-    Run Keyword If    '${ret}' != ''    Log    测试通过
-    ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
     [Teardown]
 
 查询房源
@@ -179,9 +180,9 @@ ${reg_pwd}        test1234    #新注册的密码
     ${resp}    Get Request    api    /house/info?keyword=长江小区&size[]=l1&size[]=l2&page=1    headers=${headers_dict}
     Log    resp_content=${resp.json()}
     ${ret}    get_value_from_resp    ${resp}    ['data']['total']
-    Run Keyword If    '${ret}' != ''    Log    测试通过
+    Run Keyword If    ${ret} > \ 0    Log    测试通过
     ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
 
 查询城市辖区
     [Setup]
@@ -193,7 +194,7 @@ ${reg_pwd}        test1234    #新注册的密码
     ${ret}    get_value_from_resp    ${resp}    ['data']['city'][0]['title']
     Run Keyword If    '${ret}' == '${city}'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
 
 查询城市辖区_不支持城市
     [Setup]
@@ -205,7 +206,19 @@ ${reg_pwd}        test1234    #新注册的密码
     ${ret}    get_value_from_resp    ${resp}    ['error']['code']
     Run Keyword If    '${ret}' == '1022'    Log    测试通过
     ...    ELSE    Fail    测试失败
-    save_response_to_file    ${resp}    ${json_save_dir}/${TEST NAME}.json
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+获取房东发布的房源
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${resp}    Get Request    api    /house/publish    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['total']
+    Run Keyword If    ${ret} > \ 0    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
 
 下载房源图片
     [Setup]    connect_server
@@ -213,21 +226,25 @@ ${reg_pwd}        test1234    #新注册的密码
     ${pic_uri}    Fetch From Right    ${house_pic_url}    ${port}
     ${file_basename}    Fetch From Right    ${pic_uri}    /
     ${random}    Gen Random
-    ${pic_save_pth}    Set Variable    D:\\tmp\\${random}_${file_basename}
-    ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=D:\\tmp
+    ${pic_save_pth}    Set Variable    ${space_dir}/${time_tag}/${random}_${file_basename}
+    ${ret}    Download File By Url    ${house_pic_url}    file_name=${random}_${file_basename}    save_dir=${space_dir}/${time_tag}
     File Should Exist    ${pic_save_pth}    msg=测试失败
     [Teardown]    disconnect
 
 *** Keywords ***
 connect_server
     [Arguments]    ${enable_https}=false
+    #获取系统类型
+    ${sys_type}    Evaluate    platform.system()    platform
+    Set Global Variable    ${sys_type}
+    @{time}    Get Time    year month day hour min sec
+    ${time_tag}    set variable    @{time}[0]@{time}[1]@{time}[2]_@{time}[3]@{time}[4]@{time}[5]
+    Set Global Variable    ${time_tag}
+    ${space_dir}    Set Variable If    '${sys_type}' == \ 'Windows'    D:/tmp/test/tmp    /home/qftech/share/tmp/test/tmp
+    Set Global Variable    ${space_dir}
     #创建digest会话
     ${url}    set variable if    '${enable_https}'=='true'    https://${host}:${port}    http://${host}:${port}
     Create Session    alias=api    url=${url}
-    @{time}    Get Time    year month day hour min sec
-    ${rand_tag}    set variable    @{time}[0]@{time}[1]@{time}[2]_@{time}[3]@{time}[4]@{time}[5]
-    ${json_save_dir}    set variable    ${json_save_dir}/${rand_tag}
-    Set Global Variable    ${json_save_dir}
 
 disconnect
     Delete All Sessions
