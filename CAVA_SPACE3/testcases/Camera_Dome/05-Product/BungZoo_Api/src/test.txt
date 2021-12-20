@@ -18,6 +18,7 @@ ${space_dir}      \    # 空间目录，自动根据系统类型赋值
 ${reg_user}       test    #新注册的用户名
 ${reg_pwd}        test1234    #新注册的密码
 ${sys_type}       \    #操作系统类型 linux windows
+${publish_id}     0    #新发布的房源ID
 
 *** Test Cases ***
 注册_获取手机验证码
@@ -157,7 +158,7 @@ ${sys_type}       \    #操作系统类型 linux windows
     ${publish_time}    Get Pc Nowtime
     ${detail}    Gen Random
     @{pic_url}    create list    www.test1.com    www.test2.com
-    ${houseInfo_ele}    Create Dictionary    publishTime=${publish_time}    title=测试房源    price=5000元/月    size=三室一厅    detail=${detail}
+    ${houseInfo_ele}    Create Dictionary    publishTime=${publish_time}    title=测试房源    price=5000元/月    size=3室1厅    detail=${detail}
     ...    location=杭州滨江区长江小区    picURL=@{pic_url}    updatedAt=${publish_time}
     ${houseInfo_list}    Create List    ${houseInfo_ele}
     ${data}    Create Dictionary    houseInfo=${houseInfo_list}
@@ -175,7 +176,7 @@ ${sys_type}       \    #操作系统类型 linux windows
 查询房源
     [Setup]
     #发送请求
-    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
     ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
     ${resp}    Get Request    api    /house/info?keyword=长江小区&size[]=l1&size[]=l2&page=1    headers=${headers_dict}
     Log    resp_content=${resp.json()}
@@ -219,6 +220,18 @@ ${sys_type}       \    #操作系统类型 linux windows
     Run Keyword If    ${ret} > \ 0    Log    测试通过
     ...    ELSE    Fail    测试失败
     save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    ${publish_id}    get_value_from_resp    ${resp}    ['data']['houseInfo'][0]['id']
+    Set Global Variable    ${publish_id}
+
+删除房东发布的房源
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${resp}    Delete Request    api    /house/delete?id[]=${publish_id}     headers=${headers_dict}
+    Log    status=${resp.status_code}
+    Run Keyword If    ${resp.status_code} == \ 204    Log    测试通过
+    ...    ELSE    Fail    测试失败
 
 下载房源图片
     [Setup]    connect_server
