@@ -19,6 +19,7 @@ ${reg_user}       test    #新注册的用户名
 ${reg_pwd}        test1234    #新注册的密码
 ${sys_type}       \    #操作系统类型 linux windows
 ${publish_id}     0    #新发布的房源ID
+${user_id}        \    # 用户ID
 
 *** Test Cases ***
 注册_获取手机验证码
@@ -244,6 +245,49 @@ ${publish_id}     0    #新发布的房源ID
     Run Keyword If    '${ret}' != ''    Log    测试通过
     ...    ELSE    Fail    测试失败
     save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+获取用户信息
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${tmp_user}    Set Variable    Bob
+    ${resp}    Get Request    api    /user/${tmp_user}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['users'][0]['id']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    ${user_id}    Set Variable    ${ret}
+    Set Global Variable    ${user_id}
+    [Teardown]
+
+获取用户额度
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${resp}    Get Request    api    /user/credit?userID=${user_id}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['phoneCredit']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    [Teardown]
+
+充值用户额度
+    [Setup]
+    #发送请求
+    ${wsse_info}    gen_wsse_header    ${username}    ${password}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json    X-WSSE=${wsse_info}
+    ${data}    Create Dictionary    userID=${user_id}    phoneCredit=${10}
+    ${resp}    Post Request    api    /user/credit/update    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    [Teardown]
 
 下载房源图片
     [Setup]    connect_server
