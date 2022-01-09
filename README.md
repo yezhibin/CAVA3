@@ -10,8 +10,8 @@ Windows(64位系统)环境部署请切换到master分支，centos7 x86_64环境�
 CAVA3在环境上通过脚本自动部署完成后，在windows cmd或者linux shell终端下输入cava -h可以看到框架命令行参数的使用帮助。
 **备注：**Linux下可能需要在/etc/profile中手动设置相应环境变量，参考如下：
 
-export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/bin:$LD_LIBRARY_PATH
-export PATH=/usr/local/lib:/usr/local/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/bin/CAVA3/Python37/lib:/usr/local/bin/CAVA3/Python37/bin:$LD_LIBRARY_PATH
+export PATH=/usr/local/bin/CAVA3/Python37/bin:$PATH
 
 然后在shell中执行source /etc/profile，使环境变量生效。
 
