@@ -313,7 +313,7 @@ connect_server
     Set Global Variable    ${space_dir}
     #创建digest会话
     ${url}    set variable if    '${enable_https}'=='true'    https://${host}:${port}    http://${host}:${port}
-    Create Session    alias=api    url=${url}
+    Create Session    alias=api    url=${url}    disable_warnings=InsecureRequestWarning
 
 disconnect
     Delete All Sessions
