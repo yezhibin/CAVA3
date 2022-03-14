@@ -1,0 +1,249 @@
+*** Settings ***
+Suite Setup       connect_server    ${enable_https}
+Suite Teardown    disconnect
+Library           RequestsLibrary
+Library           Collections
+Library           String
+Library           MyLib.BaseLib
+Library           OperatingSystem
+
+*** Variables ***
+${host}           180.76.144.58    # 服务器ip
+${port}           9000    # 服务端口
+${username}       test    # 用户名
+${password}       test1234    # 密码
+${enable_https}    false    # 启用https
+${house_pic_url}    \    # 房源图片全局变量
+${space_dir}      \    # 空间目录，自动根据系统类型赋值
+${reg_user}       cava    #新注册的用户名
+${reg_pwd}        12345678    #新注册的密码
+${sys_type}       \    #操作系统类型 linux windows
+${publish_id}     0    #新发布的房源ID
+${user_id}        \    # 用户ID
+${enc_data}       QFTECHSK5yRODlKYiURCwYx89jXImX8ZTxTjXnAza+vbGY8NE=
+${workspace}      \    # 当前工作目录
+
+*** Test Cases ***
+注册_获取公钥证书
+    [Setup]
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    Create Dictionary    opt=queryPubkey    algorithm=RSA
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /register    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+    [Teardown]
+
+注册_注册成功
+    [Setup]
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    Create Dictionary    opt=queryPubkey    algorithm=RSA
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /register    data=${data}    headers=${headers_dict}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Should Contain    ${ret}    BEGIN PUBLIC KEY    msg=测试失败
+    ${reg_pwd}    Set Variable    Abc123456
+    Set Global Variable    ${reg_pwd}
+    ${encrypt_pwd}    Rsa Encpypt    ${reg_pwd}    ${ret}
+    @{time}    Get Time    hour min sec
+    ${phone_time}    set variable    @{time}[0]@{time}[1]@{time}[2]
+    ${reg_user}    Set Variable    18298${phone_time}
+    Set Global Variable    ${reg_user}
+    ${data}    Create Dictionary    algorithm=RSA    username=${reg_user}    pwd=${encrypt_pwd}
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /register    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' == 'succeed'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
+登录失败_密码错误
+    [Setup]
+    #设置错误密码
+    ${reg_pwd}    Set Variable    test12345
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /authorization    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' != 'pass'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
+登录成功
+    [Setup]
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /authorization    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    [Teardown]
+
+登录失败_锁定
+    [Setup]
+    #设置错误密码
+    ${reg_pwd}    Set Variable    test12345
+    #创建会话header
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${count}    Set Variable    8
+    : FOR    ${i}    IN RANGE    1    ${count}
+    \    ${data}    gen_wsse_password    ${reg_user}    ${reg_pwd}
+    \    Log Many    ${data}
+    \    #发送请求
+    \    ${resp}    Post Request    api    /authorization    data=${data}    headers=${headers_dict}
+    \    Log    resp_content=${resp.json()}
+    \    ${ret}    get_value_from_resp    ${resp}    ['data']
+    \    ${ret_list1}    Split String    ${ret}    ,
+    \    ${ret_info}    Get From List    ${ret_list1}    0
+    \    Run Keyword If    '${ret_info}' == 'locked'    Log    测试通过
+    \    Run Keyword If    ${i} == ${7} and '${ret_info}' != 'locked'    Fail    测试失败
+    [Teardown]
+
+加密
+    [Setup]
+    #发送请求
+    ${plain}    Set Variable    东北大学
+    ${version}    Set Variable    QFTECH
+    ${data}    Create Dictionary    data=${plain}    version=${version}
+    Log Many    ${data}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${resp}    POST Request    api    /encrypt    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    ${enc_data}    Set Variable    ${ret}
+    Set Suite Variable    ${enc_data}
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+解密
+    [Setup]
+    #发送请求
+    #${enc_data}    Set Variable    QFTECHSK5yRODlKYiURCwYx89jXImX8ZTxTjXnAza+vbGY8NE=
+    ${version}    Set Variable    QFTECH
+    ${data}    Create Dictionary    data=${enc_data}    version=${version}
+    Log Many    ${data}
+    ${headers_dict}    Create Dictionary    Content-Type=application/json
+    ${resp}    POST Request    api    /decrypt    data=${data}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+转换成html
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE    UPLOAD-DIR-PATH=cava3/outputs/log/Fork_Stack_src_Api_Fun_Test_20220313073016/    OUTPUT-FORMAT=htm
+    ${publish_time}    Get Pc Nowtime
+    ${detail}    Gen Random
+    ${file_path}    Set Variable    ${workspace}/tmp/Fork_Stack_src_Api_Fun_Test_20220310-151818_Test_Report.xls
+    ${file1}    Evaluate    (open(r'${file_path}','rb'))
+    ${files}    Create Dictionary    file=${file1}
+    Log Many    ${files}
+    #发送请求
+    ${resp}    Post Request    api    /cava3/convert    files=${files}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Set Global Variable    ${house_pic_url}    ${ret}
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+上传excel report
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    FORCE-UPLOAD=TRUE    UPLOAD-DIR-PATH=cava3/outputs/log/Fork_Stack_src_Api_Fun_Test_20220313073016/    OUTPUT-FORMAT=htm
+    ${publish_time}    Get Pc Nowtime
+    ${detail}    Gen Random
+    ${file_path}    Set Variable    ${workspace}/tmp/Fork_Stack_src_Api_Fun_Test_20220310-151818_Test_Report.xls
+    ${file1}    Evaluate    (open(r'${file_path}','rb'))
+    ${files}    Create Dictionary    file=${file1}
+    Log Many    ${files}
+    #发送请求
+    ${resp}    Post Request    api    /cava3/upload    files=${files}    headers=${headers_dict}
+    Log    resp_content=${resp.json()}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Set Global Variable    ${house_pic_url}    ${ret}
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+    save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
+
+*** Keywords ***
+connect_server
+    [Arguments]    ${enable_https}=false
+    #获取系统类型
+    ${sys_type}    Evaluate    platform.system()    platform
+    Set Global Variable    ${sys_type}
+    @{time}    Get Time    year month day hour min sec
+    ${time_tag}    set variable    @{time}[0]@{time}[1]@{time}[2]_@{time}[3]@{time}[4]@{time}[5]
+    Set Global Variable    ${time_tag}
+    ${space_dir}    Set Variable If    '${sys_type}' == \ 'Windows'    D:/tmp/test/tmp    ~/share/tmp/test/tmp
+    Set Global Variable    ${space_dir}
+    ${workspace}    Set Variable If    '${sys_type}' == \ 'Windows'    D:/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/05-Product/CavaSvrProxy_Api    /usr/local/bin/CAVA3/CAVA_SPACE3/testcases/Camera_Dome/05-Product/CavaSvrProxy_Api
+    Set Global Variable    ${workspace}
+    #创建digest会话
+    ${url}    set variable if    '${enable_https}'=='true'    https://${host}:${port}    http://${host}:${port}
+    Create Session    alias=api    url=${url}
+
+disconnect
+    Delete All Sessions
+
+get_value_from_resp
+    [Arguments]    ${resp}    ${json_path}
+    Log    resp_content=${resp.text}
+    Log    status=${resp.status_code}
+    Log    headers=${resp.headers}
+    #${trace_id}    Get From Dictionary    ${resp.headers}    uber-trace-id
+    ${ret_json}    Evaluate    str(${resp.json()})
+    ${ret_list}    Run Keyword And Ignore Error    Evaluate    ${ret_json}${json_path}
+    ${ret_tmp}    Evaluate    ${ret_list}[1]
+    ${ok}    Evaluate    ${ret_list}[0]
+    ${ret}    Set Variable If    '${ok}' == \ 'PASS'    ${ret_tmp}    ''
+    [Return]    ${ret}
+
+gen_wsse_password
+    [Arguments]    ${username}    ${password}
+    ${random}    gen_random
+    ${timestamp}    Get Time    epoch
+    ${timestamp}    Evaluate    "%d" %${timestamp}
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${timestamp}    bungzoo
+    ${data}    Create Dictionary    username=${username}    pwd=${nonce}    random=${random}    timestamp=${timestamp}
+    [Return]    ${data}
+
+gen_wsse_header
+    [Arguments]    ${username}    ${password}
+    ${wsse_time}    gen_wsse_time
+    ${random}    Gen Random
+    ${nonce}    Gen Nonce    ${username}    ${password}    ${random}    ${wsse_time}    bungzoo
+    ${wsse_info}    Set Variable    UsernameToken Username=\"${username}\", PasswordDigest=\"${nonce}\", Nonce=\"${random}\", Created=\"${wsse_time}\"
+    [Return]    ${wsse_info}
+
+save_response_to_file
+    [Arguments]    ${resp}    ${path}
+    ${out_stream}    Evaluate    json.dumps(${resp.json()},ensure_ascii=False)    json
+    Log    resp_content=${out_stream}
+    Create File    ${path}    ${out_stream}
