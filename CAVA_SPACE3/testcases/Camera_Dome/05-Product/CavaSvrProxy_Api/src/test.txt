@@ -192,6 +192,49 @@ ${workspace}      \    # 当前工作目录
     ...    ELSE    Fail    测试失败
     save_response_to_file    ${resp}    ${space_dir}/${time_tag}/${TEST NAME}.json
 
+上传任务状态
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    Content-Type=application/json
+    ${tmp_uid}    Gen Random    ${16}
+    ${uid}    Set Variable    ${tmp_uid}
+    ${data}    Create Dictionary    uid=${uid}    taskName=test 007    status=testing
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /cava3/task    data=${data}    headers=${headers_dict}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' == 'task upsert succeed'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+
+更新任务状态
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}    Content-Type=application/json
+    ${tmp_uid}    Gen Random    ${16}
+    ${uid}    Set Variable    QWpdXDI7KibMjcRN
+    ${data}    Create Dictionary    uid=${uid}    taskName=test 007    status=completed    passRate=100.00%, 54/54    reportPath=http://180.76.144.58:9000/cava3/outputs/log/Fork_Stack_src_Api_Fun_Test_20220319210008/Fork_Stack_src_Api_Fun_Test_20220319-210029_Test_Report.xls
+    ...    logPath=http://180.76.144.58:9000/cava3/outputs/log/Fork_Stack_src_Api_Fun_Test_20220319210008/Fork_Stack_src_Api_Fun_Test_log.html    htmlPath=http://180.76.144.58:9000/cava3/outputs/log/Fork_Stack_src_Api_Fun_Test_20220319210008/Fork_Stack_src_Api_Fun_Test_20220319-210029_Test_Report.html
+    Log Many    ${data}
+    #发送请求
+    ${resp}    Post Request    api    /cava3/task    data=${data}    headers=${headers_dict}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']
+    Run Keyword If    '${ret}' == 'task upsert succeed'    Log    测试通过
+    ...    ELSE    Fail    测试失败
+
+查询任务状态
+    #创建会话header
+    ${wsse_info}    gen_wsse_header    ${reg_user}    ${reg_pwd}
+    ${headers_dict}    Create Dictionary    X-WSSE=${wsse_info}
+    ${uid}    Set Variable    QWpdXDI7KibMjcRN
+    #发送请求
+    ${resp}    Get Request    api    /cava3/task/${uid}    headers=${headers_dict}
+    Log    status=${resp.status_code}
+    ${ret}    get_value_from_resp    ${resp}    ['data']['task'][0]['uid']
+    Run Keyword If    '${ret}' != ''    Log    测试通过
+    ...    ELSE    Fail    测试失败
+
 *** Keywords ***
 connect_server
     [Arguments]    ${enable_https}=false
